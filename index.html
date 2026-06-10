@@ -90,6 +90,18 @@
   #voiceBtn.off #voiceState{color:var(--muted);}
   @keyframes spk{0%{box-shadow:0 0 0 0 rgba(255,179,71,.45);}100%{box-shadow:0 0 0 9px rgba(255,179,71,0);}}
   @media (max-width:560px){ #voiceBtn #voiceState{display:none;} #title small{display:none;} }
+  #autoBtn{pointer-events:auto; cursor:pointer; border:1px solid var(--line); background:rgba(255,255,255,.06);
+    color:#fff; border-radius:99px; padding:5px 11px; font-size:12px; font-weight:700; display:flex; align-items:center; gap:5px;
+    backdrop-filter:blur(8px); transition:.2s; white-space:nowrap;}
+  #autoBtn.off{opacity:.5;} #autoBtn small{font-size:10px; color:var(--gold); letter-spacing:.04em;}
+  #autoBtn.off small{color:var(--muted);}
+  @media (max-width:560px){ #autoBtn small{display:none;} }
+  /* auto-advance progress line */
+  #autobar{position:fixed; top:0; left:0; height:2px; width:0; z-index:40; opacity:0; border-radius:0 2px 2px 0;
+    background:linear-gradient(90deg,var(--fire),var(--fire2)); box-shadow:0 0 8px var(--fire);}
+  #autobar.run{opacity:.9;}
+  #autobar.pulse{width:22% !important; animation:autopulse 1.5s ease-in-out infinite;}
+  @keyframes autopulse{0%{transform:translateX(-30%);opacity:.25;}50%{opacity:.9;}100%{transform:translateX(520%);opacity:.25;}}
   /* ====== Nav ====== */
   #nav{position:fixed; bottom:0; left:0; right:0; z-index:30; display:flex; align-items:center;
     justify-content:center; gap:14px; padding:14px 16px calc(14px + env(safe-area-inset-bottom));
@@ -251,6 +263,7 @@
 <div id="hud" style="opacity:0; transition:opacity .6s">
   <div id="title">ロジックの、向こう側<small>動くピッチ紙芝居</small></div>
   <button id="voiceBtn" title="本人の声 ON / OFF">🔊<span id="voiceState">本人の声</span></button>
+  <button id="autoBtn" title="自動めくり ON / OFF">⏸<small>自動</small></button>
   <div id="meterWrap">
     <span style="font-size:14px">🔥</span>
     <div id="meter"><div id="meterFill"></div></div>
@@ -259,6 +272,7 @@
 </div>
 
 <div id="stage"></div>
+<div id="autobar"></div>
 
 <div class="hint" id="hint">クリックで次へ →</div>
 
@@ -371,7 +385,7 @@ function sfxThud(){ if(!AC||!soundOn) return; const o=AC.createOscillator(); o.t
 
 narrator.addEventListener('playing',()=>{ voiceBtn.classList.add('speaking'); duck(0.05); });
 narrator.addEventListener('pause',()=>{ voiceBtn.classList.remove('speaking'); duck(soundOn?0.15:0); });
-narrator.addEventListener('ended',()=>{ voiceBtn.classList.remove('speaking'); duck(soundOn?0.15:0); });
+narrator.addEventListener('ended',()=>{ voiceBtn.classList.remove('speaking'); duck(soundOn?0.15:0); onNarrEnd(); });
 
 function playNarr(n){
   narrator.pause(); voiceBtn.classList.remove('speaking');
@@ -386,6 +400,7 @@ voiceBtn.onclick = ()=>{
   voiceBtn.firstChild.textContent = soundOn ? '🔊' : '🔇';
   if(soundOn){ AC&&AC.resume&&AC.resume(); startMusic(); duck(0.15); playNarr(idx); }
   else { narrator.pause(); duck(0); }
+  if(built) scheduleAuto(idx);
 };
 const pre = new Audio();
 function preloadNext(n){ if(NARR[n+1]){ pre.src=NARR[n+1]; } }
@@ -585,6 +600,43 @@ stage.addEventListener('touchend',e=>{
   if(dx<-50) go(idx+1); else if(dx>50) go(idx-1);
 },{passive:true});
 
+/* ---------- auto-advance（自動ページ送り） ---------- */
+let autoPlay=true, autoTimer=null, autoEnterAt=0;
+/* 各シーンの最低表示時間(ms)。声ありは声の終了で進む(下のonNarrEnd)・なしはこの時間で進む。finale=0で停止 */
+const AUTO_MIN={art:6000, finale:0, bim:13000, mu:12000, jf:12000, goods:9000, contract:8500};
+const AUTO_MAX=24000; /* 声が止まらない時の保険 */
+const autobar=document.getElementById('autobar'), autoBtn=document.getElementById('autoBtn');
+function barReset(){ autobar.className=''; autobar.style.transition='none'; autobar.style.width='0%'; }
+function barRun(ms){ autobar.className='run'; autobar.style.transition='none'; autobar.style.width='0%';
+  void autobar.offsetWidth; autobar.style.transition='width '+ms+'ms linear'; autobar.style.width='100%'; }
+function barPulse(){ autobar.style.transition='none'; autobar.style.width='0%'; autobar.className='run pulse'; }
+function clearAuto(){ if(autoTimer){ clearTimeout(autoTimer); autoTimer=null; } }
+function autoAdvance(n){ if(autoPlay && idx===n && n<SCENES.length-1) go(idx+1); }
+function autoMin(t){ return AUTO_MIN[t]==null?6500:AUTO_MIN[t]; }
+function scheduleAuto(n){
+  clearAuto();
+  if(!autoPlay || n>=SCENES.length-1){ barReset(); return; }
+  const minD=autoMin(SCENES[n].type);
+  if(minD<=0){ barReset(); return; }
+  autoEnterAt=Date.now();
+  if(soundOn && NARR[n]){ barPulse(); autoTimer=setTimeout(()=>autoAdvance(n),AUTO_MAX); }
+  else { barRun(minD); autoTimer=setTimeout(()=>autoAdvance(n),minD); }
+}
+function onNarrEnd(){
+  if(!autoPlay || idx>=SCENES.length-1) return;
+  const n=idx, remain=Math.max(900, autoMin(SCENES[n].type)-(Date.now()-autoEnterAt));
+  clearAuto(); barRun(remain); autoTimer=setTimeout(()=>autoAdvance(n),remain);
+}
+function setAuto(on){ autoPlay=on; autoBtn.classList.toggle('off',!on);
+  autoBtn.firstChild.textContent = on?'⏸':'▶';
+  if(on) scheduleAuto(idx); else { clearAuto(); barReset(); } }
+autoBtn.onclick=()=>setAuto(!autoPlay);
+/* デモ面(bim/mu/jf/goods/contract)を触っている間は自動めくりを延長 */
+function bumpAuto(){ if(!autoPlay) return; const t=SCENES[idx].type;
+  if(/^(bim|mu|jf|goods|contract)$/.test(t)){ clearAuto(); autoEnterAt=Date.now();
+    const minD=autoMin(t); barRun(minD); autoTimer=setTimeout(()=>autoAdvance(idx),minD); } }
+stage.addEventListener('pointerdown',bumpAuto);
+
 /* ---------- per-scene activations ---------- */
 let muStarted=false, bimStarted=false;
 function onEnter(n){
@@ -597,6 +649,7 @@ function onEnter(n){
   if(t==='goods'){ const bar=document.getElementById('goodsBar'); if(bar) setTimeout(()=>bar.style.width='38%',300); setTimeout(()=>sfxChime(587),250); }
   if(t==='contract'){ runContract(); }
   if(t==='finale'){ setTimeout(()=>sfxChime(392),200); }
+  scheduleAuto(n);
 }
 
 /* ============ bim.house live 3D ============ */
