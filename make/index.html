@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>/make — 言えば、つくる。</title>
+<meta name="description" content="言葉を書くだけ。MUでつくる・bim.houseで建てる・道場を支える。/make?prompt=...&user=... で、作るを空気にする入口。">
+<meta property="og:title" content="/make — 言えば、つくる。">
+<meta property="og:description" content="あなたの言葉から、つくる。">
+<script defer src="https://enabler-analytics.fly.dev/t.js"></script>
+<script>
+(function(){
+  var SITE='kamishibai-pitch', EP='https://enabler-analytics.fly.dev/api/event';
+  function ref(){ try{ var r=localStorage.getItem('kp_ref'); if(!r){ r='v'+Math.random().toString(36).slice(2,8); localStorage.setItem('kp_ref',r);} return r;}catch(e){return 'v0';} }
+  window.kpRef=ref;
+  window.track=function(label,kind){ try{
+    var body=JSON.stringify({s:SITE,p:location.pathname,k:kind||'click',v:1,l:String(label).slice(0,80)});
+    if(navigator.sendBeacon){ navigator.sendBeacon(EP,new Blob([body],{type:'application/json'})); }
+    else { fetch(EP,{method:'POST',headers:{'Content-Type':'application/json'},body:body,keepalive:true}).catch(function(){}); }
+  }catch(e){} };
+})();
+</script>
+<style>
+  :root{--ink:#0b0d16;--gold:#e9c46a;--fire:#ff7a18;--fire2:#ffb347;--line:rgba(255,255,255,.12);--muted:#9aa0b4;}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;min-height:100vh;font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+    background:radial-gradient(90% 60% at 50% -10%,#1a1322,#0b0d16 60%);color:#fff;-webkit-font-smoothing:antialiased;
+    display:flex;align-items:center;justify-content:center;padding:24px 16px;}
+  .wrap{width:100%;max-width:520px;}
+  .top{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-bottom:18px;}
+  .top .m{font-size:20px;} .top a{margin-left:auto;color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:99px;padding:5px 11px;font-size:11px;}
+  .kick{font-size:11px;letter-spacing:.34em;color:var(--gold);text-transform:uppercase;}
+  h1{font-size:clamp(26px,7vw,38px);font-weight:900;margin:6px 0 14px;line-height:1.25;}
+  .prompt{background:linear-gradient(180deg,#141a2b,#0d111e);border:1px solid var(--line);border-radius:16px;padding:16px 18px;
+    box-shadow:0 20px 50px rgba(0,0,0,.4);}
+  .prompt .lbl{font-size:11px;color:var(--muted);letter-spacing:.1em;}
+  .prompt .txt{font-size:20px;font-weight:800;margin-top:6px;min-height:28px;line-height:1.4;}
+  .prompt .txt .cur{display:inline-block;width:2px;height:1em;background:var(--fire2);vertical-align:-2px;margin-left:2px;animation:blink 1s steps(1) infinite;}
+  @keyframes blink{50%{opacity:0;}}
+  .who{font-size:12px;color:var(--muted);margin-top:10px;}
+  .who b{color:var(--gold);}
+  .sec{margin-top:22px;}
+  .sec h2{font-size:12px;letter-spacing:.06em;color:var(--gold);text-transform:uppercase;margin:0 0 10px;}
+  .card{display:flex;align-items:center;gap:14px;text-decoration:none;color:#fff;border:1px solid var(--line);
+    background:rgba(255,255,255,.04);border-radius:15px;padding:15px 16px;margin-bottom:10px;transition:.18s;cursor:pointer;}
+  .card:active{transform:scale(.985);}
+  .card.primary{border-color:var(--fire2);background:linear-gradient(135deg,rgba(255,122,24,.16),rgba(255,179,71,.07));box-shadow:0 8px 26px rgba(255,122,24,.25);}
+  .card .e{font-size:30px;width:40px;text-align:center;}
+  .card .t{flex:1;} .card .t b{display:block;font-size:16px;} .card .t span{font-size:12px;color:#cdd2e0;}
+  .card .go{font-size:13px;font-weight:800;color:var(--fire2);white-space:nowrap;}
+  .card.primary .go{color:var(--fire2);}
+  .badge{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.08em;color:#28d07a;background:rgba(40,208,122,.14);
+    border:1px solid rgba(40,208,122,.3);border-radius:99px;padding:2px 7px;margin-left:6px;vertical-align:1px;}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);opacity:0;background:#1b2236;border:1px solid var(--line);
+    color:#fff;padding:11px 16px;border-radius:12px;font-size:13px;transition:.3s;box-shadow:0 12px 30px rgba(0,0,0,.5);z-index:30;}
+  .toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+  .empty{margin-top:14px;}
+  .empty input{width:100%;background:rgba(255,255,255,.07);border:1px solid var(--line);color:#fff;border-radius:12px;padding:14px;font-size:16px;outline:none;}
+  .empty input:focus{border-color:var(--fire2);}
+  .foot{margin-top:24px;text-align:center;font-size:11px;color:var(--muted);}
+  .foot a{color:var(--gold);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span class="m">🪄</span><b>/make</b><a href="../">紙芝居へ</a></div>
+  <div class="kick">言えば、つくる</div>
+  <h1 id="head">あなたの言葉から、<br>つくります。</h1>
+
+  <div class="prompt">
+    <div class="lbl">あなたの言葉</div>
+    <div class="txt" id="ptxt"><span class="cur"></span></div>
+    <div class="who" id="who"></div>
+  </div>
+
+  <div class="empty" id="emptyBox" style="display:none">
+    <input id="freeInput" placeholder="例：弟子屈に平屋を ／ 投資します ／ 黒Tシャツ" autocomplete="off">
+  </div>
+
+  <div class="sec">
+    <h2 id="secTitle">作る</h2>
+    <div id="cards"></div>
+  </div>
+
+  <div class="foot"><a href="../">『ロジックの、向こう側』に戻る</a> ・ 世界に届くものを、仲間と。🔥</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const qs=new URLSearchParams(location.search);
+let PROMPT=(qs.get('prompt')||qs.get('q')||qs.get('text')||'').trim();
+const USER=(qs.get('user')||qs.get('u')||'').trim();
+const enc=encodeURIComponent;
+
+const ROUTES={
+  bim:{e:'🏠',title:'bim.houseで建てる',sub:'言葉が、3秒で家になる。法規もその場で。',go:'建てる →',
+       url:'https://bim.house', kind:'house'},
+  mu:{e:'👕',title:'MUでつくる',sub:'言うだけ10秒・1枚から・在庫ゼロ。',go:'つくる →',
+       url:'https://wearmu.com/make?prompt='+enc(PROMPT||''), kind:'merch'},
+  fund:{e:'🥋',title:'熊牛・天空の道場を支える',sub:'買うことが、つくることの始まりに。',go:'支援する →',
+       url:'../founding.html'+(USER?('?ref='+enc(USER)):''), kind:'fund'},
+};
+
+function classify(p){
+  p=(p||'').toLowerCase();
+  if(/投資|支援|出資|応援|ファウンド|founding|founder|寄付|サポート|道場を|くまうし|熊牛/.test(p)) return 'fund';
+  if(/家|平屋|建て|間取り|道場|サウナ|住宅|土地|ldk|坪|bim|別荘|小屋|ガレージ|二階|平家|建築|リフォーム|間取/.test(p)) return 'bim';
+  if(/tシャツ|ティーシャツ|服|グッズ|マグ|ステッカー|パーカー|フーディ|着る|着れる|デザイン|プリント|mu\b|帽子|トート|tee|shirt/.test(p)) return 'mu';
+  return '';
+}
+
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on'); setTimeout(()=>t.classList.remove('on'),2600); }
+
+function card(key,primary){
+  const r=ROUTES[key];
+  const a=document.createElement('a'); a.className='card'+(primary?' primary':''); a.href=r.url;
+  if(key!=='fund'){ a.target='_blank'; a.rel='noopener'; }
+  a.innerHTML=`<span class="e">${r.e}</span><div class="t"><b>${r.title}${primary?'<span class="badge">おすすめ</span>':''}</b><span>${r.sub}</span></div><span class="go">${r.go}</span>`;
+  a.addEventListener('click',(ev)=>{
+    if(window.track) window.track('make:'+key+(USER?(':'+USER):''));
+    if(key==='bim' && PROMPT){
+      // bim.houseはURLでpromptを受けないので、言葉をコピーして渡す
+      try{ navigator.clipboard && navigator.clipboard.writeText(PROMPT); toast('「'+PROMPT+'」をコピー。箱に貼って「建てる」を押すと家が建ちます'); }catch(e){}
+    }
+  });
+  return a;
+}
+
+function render(){
+  // typewriter
+  const el=document.getElementById('ptxt');
+  if(PROMPT){
+    let i=0; el.innerHTML='';
+    const cur=document.createElement('span'); cur.className='cur';
+    (function type(){ if(i<=PROMPT.length){ el.textContent=PROMPT.slice(0,i); el.appendChild(cur); i++; setTimeout(type,42); } })();
+    document.getElementById('who').innerHTML = USER?('つくる人： <b>'+USER+'</b>'):'';
+  } else {
+    el.innerHTML='<span style="color:var(--muted);font-weight:600">（言葉を入れてください）</span>';
+    document.getElementById('emptyBox').style.display='block';
+  }
+  // analytics: 誰が何を作りに来たか
+  if(window.track){ window.track('make:open'+(USER?(':'+USER):'')); if(PROMPT) window.track('make_prompt:'+PROMPT.slice(0,40)); }
+
+  const c=classify(PROMPT);
+  const order = c==='fund' ? ['fund','mu','bim'] : c==='bim' ? ['bim','mu','fund'] : c==='mu' ? ['mu','bim','fund'] : ['bim','mu','fund'];
+  const cards=document.getElementById('cards'); cards.innerHTML='';
+  order.forEach((k,idx)=>cards.appendChild(card(k, !!c && idx===0)));
+  document.getElementById('secTitle').textContent = c?'いちばん近いのは、これ':'どれにする?';
+  if(c){ document.getElementById('head').innerHTML = '『'+ (PROMPT.length>14?PROMPT.slice(0,14)+'…':PROMPT) +'』<br>を、つくります。'; }
+}
+
+// free input (prompt未指定時)
+document.getElementById('freeInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter'){ const v=e.target.value.trim(); if(v){ location.search='?prompt='+enc(v)+(USER?('&user='+enc(USER)):''); } }
+});
+
+render();
+</script>
+</body>
+</html>
