@@ -155,6 +155,19 @@
   .jf-tech .t b{display:block;} .jf-tech .t span{font-size:11px; color:var(--muted);}
   .jf-tech .go{font-size:11px; color:var(--fire2); font-weight:800;}
   .jf-counter{font-size:12px; color:var(--muted);} .jf-counter b{color:var(--fire2); font-size:16px; font-variant-numeric:tabular-nums;}
+  /* Goods (founding) */
+  .goods{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:18px;
+    background:radial-gradient(90% 70% at 50% 0%,#1c1510,#0a0d16);}
+  .goods-card{width:min(196px,52vw); aspect-ratio:4/5; border-radius:16px; position:relative; overflow:hidden;
+    background:linear-gradient(135deg,#202a3d,#2c3a5c); border:1px solid var(--line); box-shadow:0 20px 50px rgba(0,0,0,.5);}
+  .goods-art{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:72px;}
+  .goods-tag{position:absolute; top:11px; left:11px; font-size:11px; font-weight:900; color:var(--fire2); letter-spacing:.12em; line-height:1.15; text-align:left;}
+  .goods-info{text-align:center;}
+  .goods-name{font-size:12.5px; color:#e6e9f2; font-weight:700;}
+  .goods-price{font-size:22px; font-weight:900; color:#fff; margin-top:3px;} .goods-price span{font-size:11px; color:var(--muted); font-weight:600;}
+  .goods-bar{width:min(260px,68vw); height:7px; border-radius:99px; background:rgba(255,255,255,.1); overflow:hidden; margin:9px auto 4px;}
+  .goods-bar-fill{height:100%; border-radius:99px; background:linear-gradient(90deg,var(--fire),var(--fire2)); transition:width 1.2s cubic-bezier(.2,.8,.2,1);}
+  .goods-n{font-size:11px; color:var(--muted);} .goods-n b{color:var(--fire2);}
   /* Links + video */
   .links{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:12px;}
   .link{font-size:12px; padding:8px 14px; border-radius:99px; text-decoration:none; font-weight:700;
@@ -205,8 +218,8 @@
 <div id="intro">
   <div class="fire">🔥</div>
   <div class="tag">動く投資ピッチ紙芝居</div>
-  <h1>ロジックの、向こう側</h1>
-  <p class="sub">めくると、本物が動き出す。<br>MU・bim.house・JiuFlow ―― その場で、触れる。<br><span style="opacity:.6">pre 100億・10億円を、計算じゃなく確信で出す話。</span></p>
+  <h1>「作る」を、空気にする。</h1>
+  <p class="sub">Amazonは「買う」を、メルカリは「売る」を空気にした。<br>―― では、「作る」は?<br><span style="opacity:.6">語りをめくると、本物が動き出す。その場で、触れる。</span></p>
   <button id="startBtn">▶ はじめる</button>
   <p class="tag" style="opacity:.5; margin-top:10px">クリック / 矢印キー / スワイプ でめくる</p>
 </div>
@@ -237,80 +250,128 @@
    動くピッチ紙芝居『ロジックの、向こう側』
    ============================================================ */
 const SCENES = [
-  { type:'art', emoji:'🔥', kicker:'PROLOGUE',
-    title:'これは、計算をやめた大人の話。',
-    body:'エクセルの最後のセルに、答えが<span class="em">なかった</span>夜の話です。', meter:5 },
+  { type:'art', emoji:'💨', kicker:'一行の、革命',
+    title:'「作る」を、空気にする。',
+    body:'Amazonは「買う」を空気にした。メルカリは「売る」を空気にした。<br>では ―― <span class="em">「作る」は?</span>', meter:8 },
 
-  { type:'art', emoji:'📊', kicker:'場面1 ― 投資家・葉山',
-    title:'「ロジックだよ。情熱は、いらない」',
-    body:'十五年で三百社。数字が立たない会社には、一円も出さない。<br>それが葉山の<span class="em">誇り</span>だった。', meter:10 },
+  { type:'art', emoji:'🛒', kicker:'かつて',
+    title:'「買う」は、重かった。',
+    body:'店へ行き、並び、運ぶ。Amazonが、それをワンクリックにした。<br>いま誰も、"買う"を意識しない。<span class="em">空気みたいに。</span>', meter:18 },
 
-  { type:'art', emoji:'✉️', kicker:'場面2 ― 一通の招待',
-    title:'「焚き火、見にきませんか」',
-    body:'事業計画書は、なかった。あったのは<span class="em">「今日、何を作ったか」</span>だけが毎晩積もる、ひとつの焚き火。', meter:16 },
+  { type:'art', emoji:'🏷️', kicker:'そして',
+    title:'「売る」も、重かった。',
+    body:'店を構え、仕入れ、値をつける。メルカリが、それを写真一枚にした。<br>誰もが、売り手になった。<span class="em">"売る"も、空気に。</span>', meter:28 },
 
-  { type:'bim', kicker:'場面3 ― bim.house｜言葉が、建つ',
-    title:'持っている土地に、これを建てたい。',
-    body:'北海道・熱海・和歌山 ― <span class="em">妄想じゃない、実際に持ってる土地</span>。<br><span style="opacity:.6">↓ チップを押すと所有地の構想が建つ。ドラッグで回せる。</span>', meter:42 },
+  { type:'art', emoji:'🧱', kicker:'でも',
+    title:'「作る」は、まだ重い。',
+    body:'設計図、工場、資本、許可、何年も。<br>だから多くの人は、一度も"作らない"まま終わる。<span class="em">―― そこを、空気にする。</span>', meter:38 },
 
-  { type:'mu', kicker:'場面4 ― MU｜毎時、一着',
-    title:'AIが、毎時間ひとつ服を作るブランド。',
-    body:'「利益率は?」――「全部、公開してます。<span class="em">隠す数字が、ひとつもない</span>」<br>葉山の赤ペンが、止まった。', meter:62 },
+  { type:'mu', kicker:'MU ｜ 服を「作る」を、空気に',
+    title:'言葉が、毎時、服になる。',
+    body:'工場も在庫もいらない。AIが一時間にひとつ、服を生む。原価も売上も全部公開。<span class="em">"作る"が、こんなに軽い。</span>', meter:56 },
 
-  { type:'jf', kicker:'場面5 ― JiuFlow｜同じ場所に積もる',
-    title:'ブラジルの一本も、君の朝の一本も。',
-    body:'タップで記録。<span class="em">同じ場所に</span>積もっていく。<br>葉山は気づいた ― これは全部、同じことを言っている。', meter:78 },
+  { type:'bim', kicker:'bim.house ｜ 家を「作る」を、空気に',
+    title:'言葉が、三秒で、建つ。',
+    body:'「北海道に平屋を」と打つだけ。法規もその場で。持ってる土地（北海道・熱海・和歌山）に、これを建てたい。<span class="em">もう、妄想じゃない。</span>', meter:74 },
 
-  { type:'art', emoji:'🔥', kicker:'場面6 ― 問い',
-    title:'「一人で、世界に届くと思ってるのか」',
-    body:'「いいえ。だから、<span class="em">仲間と</span>作ってます。一人じゃ、無理だから」<br>その一言が、葉山の十五年を静かに崩した。', meter:86 },
+  { type:'jf', kicker:'JiuFlow ｜ 遺すを、空気に',
+    title:'一本が、世界に積もる。',
+    body:'ブラジルの一本も、君の朝の一本も。タップひとつで、同じ場所へ。<span class="em">技を遺すことが、空気になる。</span>', meter:76 },
 
-  { type:'art', emoji:'🧮', kicker:'場面7 ― ロジックの、向こう側',
-    title:'葉山は、はじめて電卓を閉じた。',
-    body:'TAMも再現性も、何も埋まっていない。なのに<span class="em">確信だけが、火のように熱い</span>。<br>「これは、計算する案件じゃない。乗る案件だ」', meter:94 },
+  { type:'art', emoji:'🌍', kicker:'その先にある世界',
+    title:'誰もが、作り手になる。',
+    body:'Amazonの後、誰もが買い手に。メルカリの後、誰もが売り手に。<br>―― なら、その次は。<span class="em">誰もが、作り手になる。</span>', meter:84 },
 
-  { type:'contract', kicker:'場面8 ― 決断',
-    title:'pre 100億の評価に、10億円。',
-    body:'「根拠は?」――「根拠なら、毎晩あの焚き火に積もってる。<span class="em">見てこい</span>」', meter:100 },
+  { type:'contract', kicker:'だから、計算をやめた',
+    title:'pre 100億に、10億円。',
+    body:'数字は、まだ無い。あるのは確信だけ。「買う」「売る」が空気になったように、<span class="em">「作る」も空気になる。</span>そこに、賭ける。', meter:92 },
 
-  { type:'finale', emoji:'🔥', kicker:'場面9 ― ふたたび、焚き火',
-    title:'世界に届くものを、仲間と。',
-    body:'ロジックは世界を“説明”できる。動かすのは、いつだって<span class="em">確信</span>だ。<br>次に火をくべるのは、あなたかもしれない。', meter:100 },
+  { type:'art', emoji:'🥋', kicker:'その十億で、まず何を作る?',
+    title:'北海道・熊牛に、道場を建てる。',
+    body:'持っている土地に、言葉から設計し、仲間で建て、技を積む。<br><span class="em">"作る"が空気になる、最初の場所。</span>家であり、道場であり、焚き火。', meter:96 },
+
+  { type:'goods', kicker:'あなたも、最初の一人に',
+    title:'買うことが、作るの始まりになる。',
+    body:'道場の床に、名前が刻まれる一枚。<span class="em">収益は、まず熊牛の道場づくりへ。</span><br>投資はできなくても、ここからなら、参加できる。', meter:99 },
+
+  { type:'finale', emoji:'🔥', kicker:'世界に届くものを、仲間と',
+    title:'次に作るのは、あなただ。',
+    body:'作ることが空気になれば、世界はもっと、作られる。<br>火は、まだ<span class="em">昇りつづけている</span>。', meter:100 },
 ];
 
 /* 本人(濱田優貴)クローン声ナレーション — Koe/ElevenLabs本人声(stability0.85・確定設定) */
 const NARR = [
-  'https://mcp.koe.live/audio/kmcvXuQ8YW9I5kVWXNnmOC.mp3',
-  'https://mcp.koe.live/audio/yXtRhQ6hjhWF9TyHM8ftli.mp3',
-  'https://mcp.koe.live/audio/vbAFqGUagy7TLmEICtxRcc.mp3',
-  'https://mcp.koe.live/audio/qrlbmqFn7XBDxv0N00dUqb.mp3',
-  'https://mcp.koe.live/audio/yOOrfWaTTjgUDL85LpUhn4.mp3',
-  'https://mcp.koe.live/audio/oS5txCczKwoFTysxvFgYsM.mp3',
-  'https://mcp.koe.live/audio/kkhB21tPjUu3BXYmlro9a9.mp3',
-  'https://mcp.koe.live/audio/EJkatMFDfKKTyoHUhaV9qf.mp3',
-  'https://mcp.koe.live/audio/uDcCo84L0ZAnkZDKIH2Nn1.mp3',
-  'https://mcp.koe.live/audio/ofOgrpzrANVA9HRgxpP1Fl.mp3',
+  'https://mcp.koe.live/audio/93WO0MyfWEfGLUaQnTlr9G.mp3',
+  'https://mcp.koe.live/audio/76j6pWt421E7m1YhxTgOPf.mp3',
+  'https://mcp.koe.live/audio/YaVkVsvbjxCP6gWlRa3krj.mp3',
+  'https://mcp.koe.live/audio/D48HsFYKNOjb5WUABI4rVI.mp3',
+  'https://mcp.koe.live/audio/SAYpg8e7EaJ5Rhb7onR5Gb.mp3',
+  'https://mcp.koe.live/audio/uv3jxka9c7zaRT5gArXdJv.mp3',
+  'https://mcp.koe.live/audio/sLrNSYaoj2gjeQ5RYd0sDQ.mp3',
+  'https://mcp.koe.live/audio/JYwG4xzfcLJpCwK6Nnd6el.mp3',
+  'https://mcp.koe.live/audio/fUq2uFSO3FiXqmdEJNmKAh.mp3',
+  'https://mcp.koe.live/audio/6P9n3cS3Y7pDIHyh1j2Zlq.mp3',
+  'https://mcp.koe.live/audio/uV0wUuUHum8CJh7ILPeNO3.mp3',
+  'https://mcp.koe.live/audio/s7xxBfGOE8NQdXnTXDNjah.mp3',
 ];
-const narrator = new Audio(); narrator.preload='auto';
-let voiceOn = true;
+const narrator = new Audio(); narrator.preload='auto'; // crossOrigin不可(koeはCORS無)
+let soundOn = true;
 const voiceBtn = document.getElementById('voiceBtn'), voiceState = document.getElementById('voiceState');
-narrator.addEventListener('playing',()=>voiceBtn.classList.add('speaking'));
-narrator.addEventListener('pause',()=>voiceBtn.classList.remove('speaking'));
-narrator.addEventListener('ended',()=>voiceBtn.classList.remove('speaking'));
+
+/* ===== WebAudio: 環境音楽 + 効果音(自前合成・外部ファイル0) ===== */
+let AC=null, master=null, music=null;
+function initAudio(){ if(AC) return;
+  try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return; }
+  master=AC.createGain(); master.gain.value=0.9; master.connect(AC.destination);
+}
+function startMusic(){ if(!AC||music) return;
+  const g=AC.createGain(); g.gain.value=0; g.connect(master);
+  const lp=AC.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=600; lp.Q.value=0.6; lp.connect(g);
+  [110,164.81,220,329.63].forEach(f=>{ const o=AC.createOscillator(); o.type='sine'; o.frequency.value=f;
+    const og=AC.createGain(); og.gain.value=0.2; o.connect(og); og.connect(lp);
+    const d=AC.createOscillator(); d.type='sine'; d.frequency.value=f*1.006; d.connect(og); o.start(); d.start(); });
+  const lfo=AC.createOscillator(); lfo.frequency.value=0.05; const lg=AC.createGain(); lg.gain.value=240;
+  lfo.connect(lg); lg.connect(lp.frequency); lfo.start();
+  g.gain.linearRampToValueAtTime(0.15, AC.currentTime+5); music={g};
+}
+function duck(v){ if(music && AC) music.g.gain.linearRampToValueAtTime(v, AC.currentTime+0.5); }
+function noiseBurst(dur,f0,f1,vol,type){ if(!AC||!soundOn) return;
+  const len=Math.floor(AC.sampleRate*dur), buf=AC.createBuffer(1,len,AC.sampleRate), d=buf.getChannelData(0);
+  for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/len,1.5);
+  const s=AC.createBufferSource(); s.buffer=buf;
+  const bp=AC.createBiquadFilter(); bp.type=type||'bandpass'; bp.Q.value=0.7;
+  bp.frequency.setValueAtTime(f0,AC.currentTime); bp.frequency.exponentialRampToValueAtTime(f1,AC.currentTime+dur);
+  const g=AC.createGain(); g.gain.value=vol; g.gain.exponentialRampToValueAtTime(0.001,AC.currentTime+dur);
+  s.connect(bp); bp.connect(g); g.connect(master); s.start();
+}
+const sfxTurn=()=>noiseBurst(0.45,320,2400,0.16,'bandpass');
+function sfxChime(base){ if(!AC||!soundOn) return; [0,4,7,12].forEach((st,i)=>{
+  const f=(base||523.25)*Math.pow(2,st/12); const o=AC.createOscillator(); o.type='sine'; o.frequency.value=f;
+  const g=AC.createGain(); const t=AC.currentTime+i*0.11; g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(0.15,t+0.02); g.gain.exponentialRampToValueAtTime(0.001,t+1.3);
+  o.connect(g); g.connect(master); o.start(t); o.stop(t+1.4); }); }
+function sfxThud(){ if(!AC||!soundOn) return; const o=AC.createOscillator(); o.type='sine';
+  o.frequency.setValueAtTime(170,AC.currentTime); o.frequency.exponentialRampToValueAtTime(46,AC.currentTime+0.18);
+  const g=AC.createGain(); g.gain.value=0.5; g.gain.exponentialRampToValueAtTime(0.001,AC.currentTime+0.3);
+  o.connect(g); g.connect(master); o.start(); o.stop(AC.currentTime+0.32); noiseBurst(0.12,1200,300,0.12,'lowpass'); }
+
+narrator.addEventListener('playing',()=>{ voiceBtn.classList.add('speaking'); duck(0.05); });
+narrator.addEventListener('pause',()=>{ voiceBtn.classList.remove('speaking'); duck(soundOn?0.15:0); });
+narrator.addEventListener('ended',()=>{ voiceBtn.classList.remove('speaking'); duck(soundOn?0.15:0); });
+
 function playNarr(n){
   narrator.pause(); voiceBtn.classList.remove('speaking');
-  if(!voiceOn || !NARR[n]) return;
+  if(!soundOn || !NARR[n]) return;
   narrator.src = NARR[n]; narrator.currentTime = 0;
-  narrator.play().catch(()=>{}); // ブラウザがブロックしたら静かに無視
+  narrator.play().catch(()=>{});
 }
 voiceBtn.onclick = ()=>{
-  voiceOn = !voiceOn;
-  voiceBtn.classList.toggle('off',!voiceOn);
-  voiceState.textContent = voiceOn ? '本人の声' : 'ミュート';
-  voiceBtn.firstChild.textContent = voiceOn ? '🔊' : '🔇';
-  if(voiceOn) playNarr(idx); else narrator.pause();
+  soundOn = !soundOn;
+  voiceBtn.classList.toggle('off',!soundOn);
+  voiceState.textContent = soundOn ? 'サウンド' : 'ミュート';
+  voiceBtn.firstChild.textContent = soundOn ? '🔊' : '🔇';
+  if(soundOn){ AC&&AC.resume&&AC.resume(); startMusic(); duck(0.15); playNarr(idx); }
+  else { narrator.pause(); duck(0); }
 };
-/* 次の声をプリロードして“間”をなくす */
 const pre = new Audio();
 function preloadNext(n){ if(NARR[n+1]){ pre.src=NARR[n+1]; } }
 
@@ -331,7 +392,7 @@ function sceneArt(s){
 }
 
 function sceneShell(s, artHtml, extra=''){
-  const demo = /bim|mu|jf|contract/.test(s.type) ? ' demo' : '';
+  const demo = /bim|mu|jf|contract|goods/.test(s.type) ? ' demo' : '';
   return `<div class="frame${demo}">${artHtml}
     <div class="narr">
       <p class="kicker">${s.kicker}</p>
@@ -418,6 +479,20 @@ function buildScene(s,i){
     extra=`<div class="links"><a class="link real" href="https://jiuflow.com" target="_blank" rel="noopener">JiuFlow を開く →</a>
       <a class="link" href="https://jiuflow.com" target="_blank" rel="noopener">🎬 デモ動画</a></div>`;
   }
+  else if(s.type==='goods'){
+    art=`<div class="live"><div class="livebar"><span class="live-dot"></span><span class="url">wearmu.com</span><span style="opacity:.5">/ 熊牛・天空の道場 founding</span><span class="badge">● 募集</span></div>
+      <div class="livebody"><div class="goods">
+        <div class="goods-card"><div class="goods-art">🥋<div class="goods-tag">FOUNDING<br>MEMBER</div></div></div>
+        <div class="goods-info">
+          <div class="goods-name">熊牛・天空の道場 ファウンディングTシャツ</div>
+          <div class="goods-price">¥9,800 <span>/ 収益 → 道場づくりへ</span></div>
+          <div class="goods-bar"><div class="goods-bar-fill" style="width:0%" id="goodsBar"></div></div>
+          <div class="goods-n">最初の <b>100名</b> を募集中 ・ 床に名前を刻む</div>
+        </div>
+      </div></div></div>`;
+    extra=`<div class="links"><a class="link real" href="https://wearmu.com" target="_blank" rel="noopener" id="goodsBuy">🛒 支援する / プレオーダー →</a>
+      <a class="link" href="https://bim.house" target="_blank" rel="noopener">🏠 道場の設計を見る</a></div>`;
+  }
   else if(s.type==='contract'){
     art=`<div class="art"><div class="skybg"></div>${embers(10)}
       <div class="contract">
@@ -426,10 +501,10 @@ function buildScene(s,i){
           <div class="prow"><span>対象</span><b>Enabler Inc.</b></div>
           <div class="prow"><span>評価額（pre）</span><b id="cval">¥0</b></div>
           <div class="prow big"><span>出資額</span><b id="cinv">¥0</b></div>
-          <div class="prow"><span>根拠</span><b>焚き火</b></div>
+          <div class="prow"><span>根拠</span><b>「作る」が空気になる</b></div>
           <div class="sign">
             <svg width="150" height="46" viewBox="0 0 150 46"><path class="sign-path" id="signPath" d="M6,34 C18,8 26,40 38,20 C46,8 52,38 64,22 C74,10 84,40 96,18 C108,6 118,34 144,14"/></svg>
-            <div class="stamp" id="stamp">葉山<br>承認</div>
+            <div class="stamp" id="stamp">確信<br>承認</div>
           </div>
           <div class="memo" id="memo"></div>
         </div>
@@ -451,6 +526,7 @@ SCENES.forEach((_,i)=>{ const d=document.createElement('div'); d.className='dot'
 const mFill=document.getElementById('meterFill'), mTxt=document.getElementById('meterTxt');
 function go(n){
   n=Math.max(0,Math.min(SCENES.length-1,n));
+  if(built && n!==idx) sfxTurn();
   const scenes=[...document.querySelectorAll('.scene')];
   scenes.forEach((el,i)=>{
     el.classList.toggle('active',i===n);
@@ -497,7 +573,9 @@ function onEnter(n){
   const t=SCENES[n].type;
   if(t==='bim' && !bimStarted){ bimStarted=true; initBim(); }
   if(t==='mu' && !muStarted){ muStarted=true; initMU(); }
+  if(t==='goods'){ const bar=document.getElementById('goodsBar'); if(bar) setTimeout(()=>bar.style.width='38%',300); setTimeout(()=>sfxChime(587),250); }
   if(t==='contract'){ runContract(); }
+  if(t==='finale'){ setTimeout(()=>sfxChime(392),200); }
 }
 
 /* ============ bim.house live 3D ============ */
@@ -695,8 +773,8 @@ function runContract(){
   setTimeout(()=>countTo(cval,10000000000,'¥',1400),400);
   setTimeout(()=>countTo(cinv,1000000000,'¥',1400),1100);
   const path=document.getElementById('signPath');
-  setTimeout(()=>{ path.style.transition='stroke-dashoffset 1.3s ease'; path.style.strokeDashoffset='0'; },2200);
-  setTimeout(()=>document.getElementById('stamp').classList.add('on'),3500);
+  setTimeout(()=>{ path.style.transition='stroke-dashoffset 1.3s ease'; path.style.strokeDashoffset='0'; sfxChime(523); },2200);
+  setTimeout(()=>{ document.getElementById('stamp').classList.add('on'); sfxThud(); },3500);
   setTimeout(()=>{ document.getElementById('memo').textContent='「ロジックは、後からついてくる」'; },3900);
 }
 
@@ -708,6 +786,7 @@ function start(){
   document.getElementById('skipIntro').style.display='none';
   document.getElementById('hud').style.opacity='1';
   document.getElementById('nav').style.opacity='1';
+  initAudio(); if(AC&&AC.resume) AC.resume(); startMusic();
   go(0);
 }
 document.getElementById('startBtn').onclick=start;
