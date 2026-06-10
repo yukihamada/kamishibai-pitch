@@ -99,10 +99,13 @@ const ROUTES={
        url:'https://wearmu.com/make?prompt='+enc(PROMPT||''), kind:'merch'},
   fund:{e:'🥋',title:'熊牛・天空の道場を支える',sub:'買うことが、つくることの始まりに。',go:'支援する →',
        url:'../founding.html'+(USER?('?ref='+enc(USER)):''), kind:'fund'},
+  paint:{e:'🖼️',title:'ローカルで画像をつくる',sub:'端末内・完全無料・通信なし（WebGPU）。',go:'描く →',
+       url:'../paint/?prompt='+enc(PROMPT||''), kind:'image'},
 };
 
 function classify(p){
   p=(p||'').toLowerCase();
+  if(/画像|絵|イラスト|ロゴ|描いて|描く|アイコン|背景|壁紙|image|picture|draw|logo|illustration|artwork/.test(p)) return 'paint';
   if(/投資|支援|出資|応援|ファウンド|founding|founder|寄付|サポート|道場を|くまうし|熊牛/.test(p)) return 'fund';
   if(/家|平屋|建て|間取り|道場|サウナ|住宅|土地|ldk|坪|bim|別荘|小屋|ガレージ|二階|平家|建築|リフォーム|間取/.test(p)) return 'bim';
   if(/tシャツ|ティーシャツ|服|グッズ|マグ|ステッカー|パーカー|フーディ|着る|着れる|デザイン|プリント|mu\b|帽子|トート|tee|shirt/.test(p)) return 'mu';
@@ -142,7 +145,8 @@ function render(){
   if(window.track){ window.track('make:open'+(USER?(':'+USER):'')); if(PROMPT) window.track('make_prompt:'+PROMPT.slice(0,40)); }
 
   const c=classify(PROMPT);
-  const order = c==='fund' ? ['fund','mu','bim'] : c==='bim' ? ['bim','mu','fund'] : c==='mu' ? ['mu','bim','fund'] : ['bim','mu','fund'];
+  const all=['bim','mu','paint','fund'];
+  const order = c ? [c, ...all.filter(k=>k!==c)] : all;
   const cards=document.getElementById('cards'); cards.innerHTML='';
   order.forEach((k,idx)=>cards.appendChild(card(k, !!c && idx===0)));
   document.getElementById('secTitle').textContent = c?'いちばん近いのは、これ':'どれにする?';

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>🔒 ローカルで画像をつくる — 完全無料・通信なし</title>
+<meta name="description" content="あなたの端末のGPU(WebGPU)だけで画像生成。完全無料・通信なし・モデルは初回だけダウンロード。作るを空気にする。">
+<meta property="og:title" content="🔒 ローカルで画像をつくる — 完全無料">
+<script defer src="https://enabler-analytics.fly.dev/t.js"></script>
+<script>
+(function(){var SITE='kamishibai-pitch',EP='https://enabler-analytics.fly.dev/api/event';
+ window.track=function(l,k){try{var b=JSON.stringify({s:SITE,p:location.pathname,k:k||'click',v:1,l:String(l).slice(0,80)});
+ navigator.sendBeacon?navigator.sendBeacon(EP,new Blob([b],{type:'application/json'})):fetch(EP,{method:'POST',headers:{'Content-Type':'application/json'},body:b,keepalive:true}).catch(function(){});}catch(e){}};})();
+</script>
+<style>
+  :root{--ink:#0b0d16;--gold:#e9c46a;--fire:#ff7a18;--fire2:#ffb347;--line:rgba(255,255,255,.13);--muted:#9aa0b4;--ok:#28d07a;}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;}
+  body{font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+    background:radial-gradient(90% 60% at 50% -10%,#1a1322,#0b0d16 60%);color:#fff;min-height:100vh;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:560px;margin:0 auto;padding:20px 16px 60px;}
+  .top{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);}
+  .top a{margin-left:auto;color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:99px;padding:5px 11px;font-size:11px;}
+  .kick{font-size:11px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;margin-top:16px;}
+  h1{font-size:clamp(24px,6vw,34px);font-weight:900;margin:6px 0 6px;line-height:1.25;}
+  .lead{color:#d7dae6;font-size:13.5px;line-height:1.7;margin:0 0 16px;}
+  .lead b{color:var(--ok);}
+  .badge{display:inline-flex;gap:6px;align-items:center;font-size:11px;font-weight:800;color:var(--ok);background:rgba(40,208,122,.13);
+    border:1px solid rgba(40,208,122,.3);border-radius:99px;padding:4px 11px;margin-bottom:12px;}
+  .panel{background:linear-gradient(180deg,#141a2b,#0d111e);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 18px 50px rgba(0,0,0,.4);}
+  textarea{width:100%;background:rgba(255,255,255,.07);border:1px solid var(--line);color:#fff;border-radius:12px;padding:13px;font-size:15px;
+    outline:none;resize:vertical;min-height:74px;font-family:inherit;}
+  textarea:focus{border-color:var(--fire2);}
+  .opts{display:flex;gap:10px;align-items:center;margin-top:10px;font-size:12px;color:var(--muted);flex-wrap:wrap;}
+  .opts input[type=range]{flex:1;min-width:120px;accent-color:var(--fire);}
+  .btn{width:100%;margin-top:12px;border:none;cursor:pointer;border-radius:13px;padding:15px;font-size:16px;font-weight:800;
+    background:linear-gradient(135deg,var(--fire),var(--fire2));color:#1a1008;box-shadow:0 8px 26px rgba(255,122,24,.35);}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .btn:active{transform:scale(.99);}
+  .status{margin-top:12px;font-size:12.5px;color:#cdd2e0;line-height:1.6;min-height:18px;}
+  .status .pct{color:var(--fire2);font-weight:800;}
+  .pbar{height:7px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:8px;display:none;}
+  .pfill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--fire),var(--fire2));transition:width .3s;}
+  .stage{margin-top:14px;text-align:center;}
+  canvas{max-width:100%;border-radius:14px;border:1px solid var(--line);background:#0a0d16;display:none;}
+  .dl{display:none;margin-top:10px;}
+  .dl a{font-size:13px;text-decoration:none;color:var(--fire2);border:1px solid var(--line);border-radius:99px;padding:9px 16px;}
+  .gate{display:none;background:rgba(255,122,24,.1);border:1px solid rgba(255,122,24,.3);border-radius:13px;padding:14px 16px;margin-top:14px;font-size:13px;line-height:1.7;color:#ffd9b3;}
+  .gate a{color:var(--fire2);}
+  .note{font-size:11px;color:var(--muted);margin-top:14px;line-height:1.7;}
+  .foot{margin-top:22px;text-align:center;font-size:11px;color:var(--muted);} .foot a{color:var(--gold);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span style="font-size:18px">🔒</span><b>ローカルで、つくる</b><a href="../make/">/make へ</a></div>
+  <div class="kick">作るを、空気に</div>
+  <h1>あなたの端末だけで、<br>画像をつくる。</h1>
+  <div class="badge">🔒 完全無料 ・ 通信なし ・ 端末内で生成</div>
+  <p class="lead">クラウドAPIを一切使いません。<b>あなたのGPU(WebGPU)</b>だけで動くので、<b>何枚作っても完全無料</b>。モデルは初回だけダウンロードして、あとはオフラインでも動きます。</p>
+
+  <div class="panel">
+    <textarea id="prompt" placeholder="例：a minimal line-art emblem of a snow mountain and a jiu-jitsu belt, gold on black"></textarea>
+    <div class="opts">
+      <span>ステップ <b id="stepsv" style="color:#fff">20</b></span>
+      <input type="range" id="steps" min="1" max="30" value="20">
+    </div>
+    <button class="btn" id="gen">🔒 ローカルで生成（無料）</button>
+    <div class="status" id="status">WebGPU を確認中…</div>
+    <div class="pbar" id="pbar"><div class="pfill" id="pfill"></div></div>
+    <div class="stage"><canvas id="cv" width="512" height="512"></canvas></div>
+    <div class="dl" id="dlbox"><a id="dl" download="local-image.png">⬇ 画像を保存</a></div>
+    <div class="gate" id="gate"></div>
+  </div>
+
+  <p class="note">※ WebGPU 対応ブラウザが必要です（PC の Chrome / Edge）。初回はモデル（数 GB）をダウンロードするため時間がかかります。生成速度は端末の GPU に依存します。モデル: <code>aislamov/stable-diffusion-2-1-base-onnx</code>（diffusers.js / onnxruntime-web）。<br>WebGPU が無い端末は、クラウドの <a href="https://wearmu.com/make" target="_blank" style="color:var(--gold)">MU /make</a> をどうぞ。</p>
+  <div class="foot"><a href="../">『ロジックの、向こう側』へ</a> ・ 世界に届くものを、仲間と。🔥</div>
+</div>
+
+<script>
+const qs=new URLSearchParams(location.search);
+const promptEl=document.getElementById('prompt');
+const pre=(qs.get('prompt')||qs.get('q')||'').trim(); if(pre) promptEl.value=pre;
+const statusEl=document.getElementById('status'), genBtn=document.getElementById('gen');
+const pbar=document.getElementById('pbar'), pfill=document.getElementById('pfill');
+const cv=document.getElementById('cv'), dlbox=document.getElementById('dlbox'), dl=document.getElementById('dl');
+const stepsEl=document.getElementById('steps'); stepsEl.oninput=()=>document.getElementById('stepsv').textContent=stepsEl.value;
+function setStatus(t){ statusEl.innerHTML=t; }
+function prog(p){ pbar.style.display='block'; pfill.style.width=Math.round(p*100)+'%'; }
+
+const hasGPU = !!navigator.gpu;
+if(!hasGPU){
+  genBtn.disabled=true;
+  setStatus('この端末では WebGPU が使えません。');
+  const g=document.getElementById('gate'); g.style.display='block';
+  g.innerHTML='🔒 ローカル生成には <b>WebGPU</b> が必要です。PC の <b>Chrome / Edge</b> で開くか、クラウドの <a href="https://wearmu.com/make?prompt='+encodeURIComponent(pre||'')+'" target="_blank">MU /make</a> をお使いください。';
+  if(window.track) window.track('paint:no_webgpu');
+} else {
+  setStatus('準備OK。言葉を入れて「ローカルで生成」を押してください（初回はモデルDLで数分）。');
+  if(window.track) window.track('paint:ready');
+}
+
+let pipe=null;
+genBtn.addEventListener('click', async ()=>{
+  const prompt=promptEl.value.trim();
+  if(!prompt){ promptEl.focus(); return; }
+  if(!hasGPU) return;
+  genBtn.disabled=true; dlbox.style.display='none'; cv.style.display='none';
+  if(window.track) window.track('paint:generate');
+  try{
+    if(!pipe){
+      setStatus('🔒 ブラウザ内エンジンを読み込み中…（初回のみモデルDL・数GB）');
+      const mod = await import('https://esm.sh/@aislamov/diffusers.js@latest');
+      const DiffusionPipeline = mod.DiffusionPipeline || (mod.default && mod.default.DiffusionPipeline);
+      if(!DiffusionPipeline) throw new Error('diffusers.js の読み込みに失敗しました');
+      pipe = await DiffusionPipeline.fromPretrained('aislamov/stable-diffusion-2-1-base-onnx', {
+        revision: 'main',
+        progressCallback: (info)=>{ if(info && info.progress!=null){ prog(info.progress); setStatus('モデル読込 <span class="pct">'+Math.round(info.progress*100)+'%</span> '+(info.file||'')); } }
+      });
+    }
+    const steps=parseInt(stepsEl.value)||20;
+    setStatus('🎨 生成中…（端末のGPUで計算しています）');
+    const images = await pipe.run({
+      prompt, numInferenceSteps: steps,
+      progressCallback: (info)=>{ if(info && info.step!=null && info.totalSteps){ prog(info.step/info.totalSteps); setStatus('生成 <span class="pct">'+info.step+'/'+info.totalSteps+'</span> ステップ'); } }
+    });
+    const img = images[0];
+    const data = await img.toImageData ? await img.toImageData({tensorLayout:'NCWH', format:'RGB'}) : null;
+    if(data){ cv.width=data.width; cv.height=data.height; cv.getContext('2d').putImageData(data,0,0); }
+    cv.style.display='block'; prog(1); setStatus('✅ できあがり（このページから出ていません＝完全ローカル）');
+    dl.href=cv.toDataURL('image/png'); dlbox.style.display='block';
+    if(window.track) window.track('paint:done');
+  }catch(e){
+    setStatus('⚠ 生成に失敗しました：'+((e&&e.message)||e)+'<br><span style="color:var(--muted)">WebGPU対応のPC Chrome/Edgeでお試しください。</span>');
+    if(window.track) window.track('paint:error');
+  }finally{ genBtn.disabled=false; }
+});
+</script>
+</body>
+</html>
