@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>🔒 ローカルで画像をつくる — 完全無料・通信なし</title>
-<meta name="description" content="あなたの端末のGPU(WebGPU)だけで画像生成。完全無料・通信なし・モデルは初回だけダウンロード。作るを空気にする。">
-<meta property="og:title" content="🔒 ローカルで画像をつくる — 完全無料">
+<title>🎨 無料で画像をつくる — 自前GPU(m5)</title>
+<meta name="description" content="言葉から画像生成。自前GPU(m5/SDXL)で動くので完全無料・何枚でも・スマホもOK。作るを空気にする。">
+<meta property="og:title" content="🎨 無料で画像をつくる — 自前GPU(m5)">
 <script defer src="https://enabler-analytics.fly.dev/t.js"></script>
 <script>
 (function(){var SITE='kamishibai-pitch',EP='https://enabler-analytics.fly.dev/api/event';
@@ -52,9 +52,9 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><span style="font-size:18px">🔒</span><b>ローカルで、つくる</b><a href="../make/">/make へ</a></div>
+  <div class="top"><span style="font-size:18px">🎨</span><b>無料で、つくる</b><a href="../make/">/make へ</a></div>
   <div class="kick">作るを、空気に</div>
-  <h1>あなたの端末だけで、<br>画像をつくる。</h1>
+  <h1>言葉から、無料で、<br>画像をつくる。</h1>
   <div class="badge">🎨 完全無料 ・ 自前GPU(m5/SDXL) ・ 何枚でも</div>
   <p class="lead">クラウドの有料APIを使いません。<b>自前のGPU（m5）</b>で生成するので、<b>何枚作っても完全無料</b>。スマホからでもOK（WebGPU不要）。10〜30秒で出ます。</p>
 
@@ -65,7 +65,7 @@
       <input type="range" id="steps" min="1" max="30" value="20">
     </div>
     <button class="btn" id="gen">🎨 生成する（無料）</button>
-    <div class="status" id="status">WebGPU を確認中…</div>
+    <div class="status" id="status">準備中…</div>
     <div class="pbar" id="pbar"><div class="pfill" id="pfill"></div></div>
     <div class="stage"><canvas id="cv" width="512" height="512"></canvas></div>
     <div class="dl" id="dlbox"><a id="dl" download="local-image.png">⬇ 画像を保存</a></div>
