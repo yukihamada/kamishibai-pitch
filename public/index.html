@@ -432,12 +432,16 @@ function buildScene(s,i){
     art=sceneArt(s);
     if(s.type==='finale'){
       extra=`<div class="links">
-        <a class="link real" href="https://wearmu.com/transparency" target="_blank" rel="noopener">📊 全数字 /transparency</a>
-        <a class="link" href="https://bim.house" target="_blank" rel="noopener">🏠 bim.house</a>
-        <a class="link" href="https://jiuflow.com" target="_blank" rel="noopener">🥋 JiuFlow</a>
+        <a class="link real" href="make/" id="goMake">🪄 言えば、つくる（/make）</a>
+        <a class="link" href="paint/" id="goPaint">🔒 ローカルで画像を無料生成</a>
+        <a class="link" href="founding.html" id="goFound">🥋 道場を支える</a>
       </div>
-      <div class="links" style="margin-top:8px"><button class="link real" id="replayBtn">↻ もう一度めくる</button>
-      <button class="link" id="shareBtn">🔗 共有</button></div>`;
+      <div class="links" style="margin-top:8px">
+        <a class="link" href="slides/" target="_blank" rel="noopener">🖥 スライド</a>
+        <a class="link" href="https://wearmu.com/transparency" target="_blank" rel="noopener">📊 全数字</a>
+        <button class="link real" id="replayBtn">↻ もう一度</button>
+        <button class="link" id="shareBtn">🔗 共有</button>
+      </div>`;
     }
   }
   else if(s.type==='bim'){
