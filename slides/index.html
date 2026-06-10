@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>「作る」を、空気にする。— Enabler ピッチ</title>
+<meta name="description" content="Amazonは買うを、メルカリは売るを空気にした。僕らは『作る』を空気にする。MU・bim.house・JiuFlow の投資ピッチ。">
+<meta property="og:title" content="「作る」を、空気にする。— Enabler">
+<meta property="og:image" content="https://mockups.wearmu.com/catalog/mockups/TENKUDOJO-AGENT-TEE-2ddf4be0.png">
+<script defer src="https://enabler-analytics.fly.dev/t.js"></script>
+<script>
+(function(){var SITE='kamishibai-pitch',EP='https://enabler-analytics.fly.dev/api/event';
+ window.track=function(l,k){try{var b=JSON.stringify({s:SITE,p:location.pathname,k:k||'click',v:1,l:String(l).slice(0,80)});
+ navigator.sendBeacon?navigator.sendBeacon(EP,new Blob([b],{type:'application/json'})):fetch(EP,{method:'POST',headers:{'Content-Type':'application/json'},body:b,keepalive:true}).catch(function(){});}catch(e){}};})();
+</script>
+<style>
+  :root{--ink:#0b0d16;--ink2:#11152a;--gold:#e9c46a;--fire:#ff7a18;--fire2:#ffb347;--line:rgba(255,255,255,.14);--muted:#9aa0b4;}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;}
+  html,body{height:100%;}
+  body{font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",system-ui,sans-serif;background:#06070d;color:#fff;
+    overflow:hidden;-webkit-font-smoothing:antialiased;}
+  #deck{position:fixed;inset:0;}
+  .slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:7vmin 9vmin;text-align:center;opacity:0;transform:translateY(18px) scale(.99);pointer-events:none;
+    transition:opacity .5s ease,transform .5s cubic-bezier(.2,.8,.2,1);
+    background:radial-gradient(80% 70% at 50% 0%,#15182b,#06070d 70%);}
+  .slide.on{opacity:1;transform:none;pointer-events:auto;}
+  .kick{font-size:clamp(11px,1.6vmin,15px);letter-spacing:.34em;color:var(--gold);text-transform:uppercase;margin-bottom:3vmin;}
+  h1{font-size:clamp(34px,9vmin,92px);font-weight:900;line-height:1.18;letter-spacing:.01em;}
+  h2{font-size:clamp(26px,6vmin,58px);font-weight:900;line-height:1.25;}
+  .big3{font-size:clamp(22px,5.2vmin,50px);font-weight:800;line-height:1.7;}
+  .big3 .b{color:var(--muted);} .big3 .f{color:var(--fire2);}
+  .sub{font-size:clamp(15px,2.6vmin,26px);color:#d7dae6;line-height:1.7;margin-top:3.5vmin;max-width:24em;}
+  .sub .em{color:var(--fire2);font-weight:700;}
+  .row{display:flex;gap:4vmin;flex-wrap:wrap;justify-content:center;margin-top:4vmin;}
+  .pill{font-size:clamp(13px,2.2vmin,22px);color:#e6e9f2;border:1px solid var(--line);border-radius:99px;padding:1.2vmin 3vmin;background:rgba(255,255,255,.04);}
+  .pill b{color:var(--fire2);}
+  .em{color:var(--fire2);}
+  .shot{margin-top:3vmin;max-height:34vmin;border-radius:14px;border:1px solid var(--line);box-shadow:0 16px 50px rgba(0,0,0,.5);}
+  .emblem{height:30vmin;filter:drop-shadow(0 8px 30px rgba(255,179,71,.25));margin-bottom:2vmin;}
+  .fire{font-size:14vmin;animation:flick 2.6s ease-in-out infinite;}
+  @keyframes flick{50%{transform:scale(1.07) rotate(-2deg);filter:brightness(1.15);}}
+  .redact{background:#b3530a;color:#b3530a;border-radius:4px;padding:0 .5em;letter-spacing:3px;}
+  .note{font-size:clamp(11px,1.7vmin,16px);color:var(--muted);margin-top:3vmin;}
+  .links{display:flex;gap:2.4vmin;flex-wrap:wrap;justify-content:center;margin-top:4vmin;}
+  .links a{font-size:clamp(13px,2vmin,20px);text-decoration:none;color:#fff;border:1px solid var(--line);border-radius:99px;
+    padding:1.3vmin 3vmin;background:rgba(255,255,255,.05);}
+  .links a.real{background:linear-gradient(135deg,var(--fire),var(--fire2));color:#1a1008;border:none;font-weight:800;}
+  /* chrome */
+  #bar{position:fixed;bottom:0;left:0;height:4px;background:linear-gradient(90deg,var(--fire),var(--fire2));width:0;transition:width .4s;z-index:20;}
+  #nav{position:fixed;bottom:14px;right:16px;display:flex;align-items:center;gap:12px;z-index:20;color:var(--muted);font-size:13px;}
+  #nav button{cursor:pointer;border:1px solid var(--line);background:rgba(255,255,255,.06);color:#fff;border-radius:99px;width:38px;height:38px;font-size:16px;}
+  #nav button:active{transform:scale(.92);}
+  #brand{position:fixed;top:16px;left:20px;font-size:13px;color:var(--muted);letter-spacing:.04em;z-index:20;}
+  #brand b{color:#fff;}
+  #hint{position:fixed;bottom:14px;left:20px;font-size:11px;color:var(--muted);z-index:20;}
+  /* PDF / print: 全スライドを1ページずつ */
+  @media print{
+    @page{size:1280px 720px;margin:0;}
+    body{overflow:visible;}
+    #deck{position:static;}
+    .slide{position:relative;opacity:1!important;transform:none!important;page-break-after:always;height:720px;width:1280px;}
+    #nav,#bar,#hint,#brand{display:none;}
+  }
+</style>
+</head>
+<body>
+<div id="brand">🔥 <b>Enabler</b> ・ 世界に届くものを、仲間と</div>
+<div id="deck"></div>
+<div id="bar"></div>
+<div id="hint">← → でめくる ・ F で全画面 ・ P で印刷/PDF</div>
+<div id="nav"><button id="prev">←</button><span id="count">1 / 11</span><button id="next">→</button></div>
+
+<script>
+const TEE='https://mockups.wearmu.com/catalog/mockups/TENKUDOJO-AGENT-TEE-2ddf4be0.png';
+const EMBLEM='../assets/dojo-founding.png';
+const SLIDES=[
+  `<div class="fire">🔥</div><div class="kick">Enabler ・ 投資ピッチ</div>
+   <h1>「作る」を、<br>空気にする。</h1>
+   <div class="sub">Amazonは「買う」を、メルカリは「売る」を空気にした。<br>僕らは ―― <span class="em">「作る」</span>を。</div>`,
+
+  `<div class="kick">命題</div>
+   <div class="big3">
+     Amazon は <span class="b">「買う」</span>を空気にした。<br>
+     メルカリ は <span class="b">「売る」</span>を空気にした。<br>
+     僕らは <span class="f">「作る」</span>を、空気にする。
+   </div>`,
+
+  `<div class="kick">課題</div>
+   <h2>「作る」は、まだ重い。</h2>
+   <div class="sub">設計図、工場、資本、許可、何年も。<br>だから多くの人は、<span class="em">一度も"作らない"</span>まま終わる。</div>`,
+
+  `<div class="kick">MU ｜ 服を「作る」を、空気に</div>
+   <h2>言葉が、毎時、服になる。</h2>
+   <div class="row"><span class="pill">AIが <b>毎時1着</b></span><span class="pill">工場も在庫も <b>ゼロ</b></span><span class="pill">原価も売上も <b>全公開</b></span></div>
+   <img class="shot" src="${TEE}" alt="MU">`,
+
+  `<div class="kick">bim.house ｜ 家を「作る」を、空気に</div>
+   <h2>言葉が、三秒で、建つ。</h2>
+   <div class="row"><span class="pill">法規も <b>その場で判定</b></span><span class="pill">北海道・熱海・和歌山 <b>＝所有地</b></span></div>
+   <div class="sub">「北海道に平屋を」と打つだけ。<span class="em">もう、妄想じゃない。</span></div>`,
+
+  `<div class="kick">JiuFlow ｜ 遺すを、空気に</div>
+   <h2>一本が、世界に積もる。</h2>
+   <div class="sub">ブラジルの一本も、君の朝の一本も。<br>タップひとつで、<span class="em">同じ場所へ。</span></div>`,
+
+  `<div class="kick">その先にある世界</div>
+   <h2>誰もが、作り手になる。</h2>
+   <div class="big3">
+     Amazonの後、誰もが <span class="b">買い手</span>に。<br>
+     メルカリの後、誰もが <span class="b">売り手</span>に。<br>
+     なら次は ―― 誰もが <span class="f">作り手</span>に。
+   </div>`,
+
+  `<div class="kick">最初の一手 ｜ お金の使い道</div>
+   <h2>北海道・熊牛に、道場を建てる。</h2>
+   <img class="emblem" src="${EMBLEM}" alt="dojo">
+   <div class="sub">所有地 × <span class="em">bim.house設計</span> × JiuFlow × 仲間。<br>"作る"が空気になる、最初の場所。</div>`,
+
+  `<div class="kick">だから、計算をやめた</div>
+   <h2>数字じゃなく、確信で。</h2>
+   <div class="row"><span class="pill">評価額(pre)　<span class="redact">██████</span></span><span class="pill">出資　<span class="redact">████</span></span></div>
+   <div class="sub">「買う」「売る」が空気になったように、<span class="em">「作る」も空気になる。</span>そこに、賭ける。</div>
+   <div class="note">※金額は非公開</div>`,
+
+  `<div class="kick">いま、触れる</div>
+   <h2>言えば、つくる。</h2>
+   <div class="sub">URL に言葉を書くだけ。<br><b>/make?prompt=…&user=…</b> が、MU・bim.house・支援へ。</div>
+   <div class="links">
+     <a class="real" href="../make?prompt=%E6%8A%95%E8%B3%87%E3%81%97%E3%81%BE%E3%81%99&user=yuki" target="_blank">/make を試す →</a>
+     <a href="../founding.html" target="_blank">founding（取り分付き支援）</a>
+     <a href="../" target="_blank">動く紙芝居</a>
+   </div>`,
+
+  `<div class="fire">🔥</div>
+   <h1>次に作るのは、<br>あなただ。</h1>
+   <div class="sub">作ることが空気になれば、世界はもっと、作られる。<br><span class="em">世界に届くものを、仲間と。</span></div>`,
+];
+
+const deck=document.getElementById('deck');
+SLIDES.forEach((html,i)=>{ const s=document.createElement('section'); s.className='slide'; s.innerHTML=html; deck.appendChild(s); });
+let idx=0; const slides=[...document.querySelectorAll('.slide')];
+function go(n){ idx=Math.max(0,Math.min(slides.length-1,n));
+  slides.forEach((s,i)=>s.classList.toggle('on',i===idx));
+  document.getElementById('count').textContent=(idx+1)+' / '+slides.length;
+  document.getElementById('bar').style.width=((idx)/(slides.length-1)*100)+'%';
+  if(window.track) window.track('slide:'+idx);
+}
+document.getElementById('next').onclick=()=>go(idx+1);
+document.getElementById('prev').onclick=()=>go(idx-1);
+deck.addEventListener('click',e=>{ if(e.target.closest('a,button'))return; go(idx+1); });
+addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown')go(idx+1);
+  else if(e.key==='ArrowLeft'||e.key==='PageUp')go(idx-1);
+  else if(e.key==='Home')go(0); else if(e.key==='End')go(slides.length-1);
+  else if(e.key.toLowerCase()==='f'){ if(!document.fullscreenElement)document.documentElement.requestFullscreen?.(); else document.exitFullscreen?.(); }
+  else if(e.key.toLowerCase()==='p'){ e.preventDefault(); print(); }
+});
+let sx=0; deck.addEventListener('touchstart',e=>sx=e.touches[0].clientX,{passive:true});
+deck.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx; if(dx<-50)go(idx+1); else if(dx>50)go(idx-1);},{passive:true});
+go(0);
+</script>
+</body>
+</html>
