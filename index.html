@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ロジックの、向こう側 — 動くピッチ紙芝居</title>
+<meta name="description" content="MU・bim.house・JiuFlow。語りをめくると、本物が動き出す。pre 100億・10億円を、ロジックじゃなく確信で出す投資家の紙芝居。">
+<meta property="og:title" content="ロジックの、向こう側">
+<meta property="og:description" content="紙芝居をめくると、プロダクトが生きて動く。触れる投資ピッチ。">
+<meta property="og:type" content="website">
+<style>
+  :root{
+    --ink:#1a1410; --paper:#f4 ece0; --paper:#f5eee1; --fire:#ff7a18; --fire2:#ffb347;
+    --gold:#e9c46a; --night:#0b0d16; --night2:#161a2b; --line:rgba(255,255,255,.12);
+    --muted:#9aa0b4;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;height:100%;}
+  body{
+    font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+    background:var(--night); color:#fff; overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  /* ====== Stage ====== */
+  #stage{position:fixed; inset:0; display:flex; align-items:center; justify-content:center;}
+  .scene{
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; padding:max(20px,env(safe-area-inset-top)) 18px 86px;
+    opacity:0; transform:translateX(40px) scale(.98); pointer-events:none;
+    transition:opacity .55s ease, transform .55s cubic-bezier(.2,.8,.2,1);
+    text-align:center;
+  }
+  .scene.active{opacity:1; transform:none; pointer-events:auto;}
+  .scene.prev{transform:translateX(-40px) scale(.98);}
+  .frame{
+    width:min(880px,94vw); max-height:84vh; border-radius:22px; overflow:hidden;
+    background:radial-gradient(120% 120% at 50% 0%,var(--night2),#0c0f1a);
+    border:1px solid var(--line); box-shadow:0 30px 80px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.06);
+    display:flex; flex-direction:column; position:relative;
+  }
+  .art{position:relative; flex:1 1 auto; min-height:300px; overflow:hidden;}
+  .frame.demo{max-height:90vh;} .frame.demo .narr{padding:11px 18px 13px;}
+  .frame.demo .art{flex:none; height:48vh; min-height:340px;}
+  .narr{
+    padding:16px 22px 20px; background:linear-gradient(0deg,#0a0c14,rgba(10,12,20,.2));
+    border-top:1px solid var(--line);
+  }
+  .kicker{font-size:12px; letter-spacing:.32em; color:var(--gold); text-transform:uppercase; margin:0 0 8px;}
+  .narr h2{margin:0 0 8px; font-size:clamp(19px,3.6vw,26px); line-height:1.35; font-weight:800;}
+  .narr p{margin:0; color:#d7dae6; font-size:clamp(13px,2.7vw,15.5px); line-height:1.75;}
+  .narr p .em{color:var(--fire2); font-weight:700;}
+  /* ====== HUD ====== */
+  #hud{position:fixed; top:0; left:0; right:0; padding:12px 16px calc(10px); display:flex;
+    align-items:center; gap:12px; z-index:30; pointer-events:none;}
+  #title{font-size:13px; font-weight:800; letter-spacing:.04em; opacity:.9;}
+  #title small{display:block; font-weight:500; color:var(--muted); letter-spacing:.18em; font-size:9.5px;}
+  #meterWrap{flex:1 1 auto; display:flex; align-items:center; gap:8px; max-width:340px; margin-left:auto;}
+  #meter{flex:1; height:7px; border-radius:99px; background:rgba(255,255,255,.1); overflow:hidden; position:relative;}
+  #meterFill{position:absolute; inset:0; width:0%; border-radius:99px;
+    background:linear-gradient(90deg,#3a2,var(--gold),var(--fire)); transition:width .6s cubic-bezier(.2,.8,.2,1);
+    box-shadow:0 0 14px rgba(255,150,40,.5);}
+  #meterTxt{font-size:10px; color:var(--gold); font-weight:800; white-space:nowrap; width:84px; text-align:right;}
+  /* ====== Nav ====== */
+  #nav{position:fixed; bottom:0; left:0; right:0; z-index:30; display:flex; align-items:center;
+    justify-content:center; gap:14px; padding:14px 16px calc(14px + env(safe-area-inset-bottom));
+    background:linear-gradient(0deg,rgba(7,8,14,.9),transparent);}
+  .navbtn{pointer-events:auto; cursor:pointer; user-select:none; border:1px solid var(--line);
+    background:rgba(255,255,255,.06); color:#fff; border-radius:99px; padding:11px 20px; font-size:14px;
+    font-weight:700; display:flex; align-items:center; gap:7px; backdrop-filter:blur(8px);
+    transition:transform .15s, background .2s, opacity .2s;}
+  .navbtn:active{transform:scale(.94);}
+  .navbtn.primary{background:linear-gradient(135deg,var(--fire),var(--fire2)); color:#1a1008; border:none;
+    box-shadow:0 6px 22px rgba(255,122,24,.4);}
+  .navbtn[disabled]{opacity:.3; pointer-events:none;}
+  #dots{display:flex; gap:6px;}
+  .dot{width:7px; height:7px; border-radius:99px; background:rgba(255,255,255,.22); transition:all .3s; cursor:pointer; pointer-events:auto;}
+  .dot.on{background:var(--fire2); width:20px;}
+  .hint{position:fixed; bottom:78px; left:50%; transform:translateX(-50%); font-size:11px; color:var(--muted);
+    z-index:25; opacity:.7; letter-spacing:.06em;}
+  /* ====== Generic art bg ====== */
+  .skybg{position:absolute; inset:0; background:
+    radial-gradient(80% 60% at 50% 120%,rgba(255,122,24,.22),transparent 70%),
+    linear-gradient(180deg,#0a0d1a 0%,#11152a 60%,#1a1322 100%);}
+  .embers{position:absolute; inset:0; overflow:hidden; pointer-events:none;}
+  .ember{position:absolute; bottom:-10px; width:4px; height:4px; border-radius:99px;
+    background:var(--fire2); box-shadow:0 0 8px var(--fire); animation:rise linear infinite; opacity:0;}
+  @keyframes rise{0%{transform:translateY(0) translateX(0);opacity:0;}
+    10%{opacity:.9;} 100%{transform:translateY(-340px) translateX(var(--dx,20px));opacity:0;}}
+  .center-emoji{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:84px; filter:drop-shadow(0 8px 30px rgba(255,122,24,.4));}
+  /* ====== Live demo chrome ====== */
+  .live{position:relative; height:48vh; min-height:344px; width:100%; display:flex; flex-direction:column; background:#0a0d16;}
+  @media (max-height:740px){ .live{height:44vh;} }
+  .livebar{display:flex; align-items:center; gap:8px; padding:8px 12px; border-bottom:1px solid var(--line);
+    font-size:11px; color:var(--muted); background:#0d1120;}
+  .livebar .live-dot{width:8px;height:8px;border-radius:99px;background:#28d07a;box-shadow:0 0 8px #28d07a; animation:pulse 1.6s infinite;}
+  @keyframes pulse{50%{opacity:.4;}}
+  .livebar .url{font-family:ui-monospace,Menlo,monospace; opacity:.8;}
+  .livebar .badge{margin-left:auto; background:rgba(40,208,122,.14); color:#28d07a; padding:3px 9px; border-radius:99px; font-weight:800; font-size:9.5px; letter-spacing:.1em;}
+  .livebody{flex:1; position:relative; overflow:hidden;}
+  /* bim demo */
+  #bimCanvas{position:absolute; inset:0; width:100%; height:100%; display:block;}
+  .bim-ui{position:absolute; left:0; right:0; bottom:0; padding:10px; display:flex; flex-direction:column; gap:8px;
+    background:linear-gradient(0deg,rgba(8,10,18,.92),transparent);}
+  .bim-input{display:flex; gap:7px;}
+  .bim-input input{flex:1; background:rgba(255,255,255,.08); border:1px solid var(--line); color:#fff;
+    border-radius:11px; padding:11px 13px; font-size:14px; outline:none;}
+  .bim-input input:focus{border-color:var(--fire2);}
+  .bim-input button{background:linear-gradient(135deg,var(--fire),var(--fire2)); border:none; color:#1a1008;
+    font-weight:800; border-radius:11px; padding:0 16px; font-size:14px; cursor:pointer;}
+  .chips{display:flex; gap:6px; flex-wrap:wrap; justify-content:center;}
+  .chip{font-size:11.5px; padding:6px 11px; border-radius:99px; border:1px solid var(--line);
+    background:rgba(255,255,255,.05); color:#cfd3e0; cursor:pointer; transition:.15s;}
+  .chip:active{transform:scale(.93);} .chip:hover{border-color:var(--fire2); color:#fff;}
+  .houki{position:absolute; top:10px; left:10px; display:flex; flex-direction:column; gap:5px; align-items:flex-start;}
+  .hbadge{font-size:10.5px; padding:5px 10px; border-radius:8px; background:rgba(40,208,122,.16); color:#28d07a;
+    border:1px solid rgba(40,208,122,.3); font-weight:700; opacity:0; transform:translateX(-12px);
+    transition:.4s; display:flex; gap:6px; align-items:center;}
+  .hbadge.show{opacity:1; transform:none;}
+  .bim-spec{position:absolute; top:10px; right:10px; text-align:right; font-size:11px; color:#cfd3e0; line-height:1.7;}
+  .bim-spec b{color:#fff; font-size:15px;}
+  /* MU demo */
+  .mu{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:16px;
+    background:radial-gradient(90% 70% at 50% 0%,#1a1326,#0a0d16);}
+  .mu-count{font-size:12px; letter-spacing:.2em; color:var(--muted);}
+  .mu-count b{color:var(--fire2); font-variant-numeric:tabular-nums;}
+  .mu-card{width:min(260px,72vw); aspect-ratio:4/5; border-radius:16px; position:relative; overflow:hidden;
+    box-shadow:0 20px 50px rgba(0,0,0,.5); border:1px solid var(--line); transition:.6s;}
+  .mu-tee{position:absolute; inset:0; display:flex; align-items:center; justify-content:center;}
+  .mu-meta{font-size:12px; color:#cfd3e0;} .mu-meta b{color:#fff;}
+  .mu-nums{display:flex; gap:14px; margin-top:2px;}
+  .mu-num{text-align:center;} .mu-num b{display:block; font-size:18px; color:var(--gold); font-variant-numeric:tabular-nums;}
+  .mu-num span{font-size:9.5px; color:var(--muted); letter-spacing:.1em;}
+  /* JiuFlow demo */
+  .jf{position:absolute; inset:0; display:flex; flex-direction:column; background:#0a0d16;}
+  .jf-map{flex:1; position:relative; background:
+    radial-gradient(60% 50% at 30% 40%,rgba(255,122,24,.08),transparent),
+    linear-gradient(180deg,#0c1020,#0a0d16); overflow:hidden;}
+  .jf-globe{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:130px; opacity:.18;}
+  .ping{position:absolute; width:11px; height:11px; border-radius:99px; background:var(--fire2);}
+  .ping::after{content:""; position:absolute; inset:-4px; border-radius:99px; border:2px solid var(--fire2); animation:ping 1.4s ease-out infinite;}
+  @keyframes ping{0%{transform:scale(.6);opacity:1;}100%{transform:scale(2.6);opacity:0;}}
+  .jf-tap{padding:12px; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:10px; align-items:center; background:#0d1120;}
+  .jf-tech{width:100%; max-width:320px; background:rgba(255,255,255,.05); border:1px solid var(--line); border-radius:13px;
+    padding:13px 15px; display:flex; align-items:center; gap:12px; cursor:pointer; transition:.15s;}
+  .jf-tech:active{transform:scale(.97); background:rgba(255,122,24,.12);}
+  .jf-tech .e{font-size:26px;} .jf-tech .t{text-align:left; flex:1;}
+  .jf-tech .t b{display:block;} .jf-tech .t span{font-size:11px; color:var(--muted);}
+  .jf-tech .go{font-size:11px; color:var(--fire2); font-weight:800;}
+  .jf-counter{font-size:12px; color:var(--muted);} .jf-counter b{color:var(--fire2); font-size:16px; font-variant-numeric:tabular-nums;}
+  /* Links + video */
+  .links{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:12px;}
+  .link{font-size:12px; padding:8px 14px; border-radius:99px; text-decoration:none; font-weight:700;
+    border:1px solid var(--line); color:#fff; background:rgba(255,255,255,.05); display:inline-flex; gap:6px; align-items:center;}
+  .link.real{background:linear-gradient(135deg,rgba(255,122,24,.18),rgba(255,179,71,.12)); border-color:rgba(255,122,24,.4); color:var(--fire2);}
+  .videoslot{margin-top:10px; width:100%; aspect-ratio:16/9; border-radius:12px; border:1px dashed var(--line);
+    display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:12px; background:rgba(255,255,255,.02); position:relative; overflow:hidden;}
+  .videoslot iframe{position:absolute; inset:0; width:100%; height:100%; border:0;}
+  /* Contract finale */
+  .contract{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:18px;
+    background:radial-gradient(80% 80% at 50% 30%,#1c1407,#0a0d16);}
+  .contract{overflow:auto;}
+  .paper{background:linear-gradient(180deg,#f7f1e3,#efe6d2); color:#2a2418; border-radius:8px; padding:16px 20px;
+    width:min(340px,80vw); box-shadow:0 24px 60px rgba(0,0,0,.5); font-family:"Hiragino Mincho ProN",serif; position:relative;}
+  .paper h3{margin:0 0 9px; font-size:14px; letter-spacing:.06em; text-align:center; border-bottom:1px solid #cbb; padding-bottom:7px;}
+  .prow{display:flex; justify-content:space-between; font-size:13px; padding:5px 0; border-bottom:1px dotted #cbb;}
+  .prow b{font-variant-numeric:tabular-nums;}
+  .prow.big b{color:#b3530a; font-size:17px;}
+  .sign{margin-top:14px; height:46px; position:relative;}
+  .sign svg{position:absolute; right:0; bottom:0;}
+  .sign-path{stroke:#1a1a2a; stroke-width:2.4; fill:none; stroke-linecap:round; stroke-dasharray:520; stroke-dashoffset:520;}
+  .stamp{position:absolute; right:-4px; bottom:-6px; width:48px; height:48px; border:3px solid #c0392b; border-radius:8px;
+    color:#c0392b; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:11px; transform:rotate(-12deg) scale(0); opacity:0;
+    transition:.5s cubic-bezier(.2,1.5,.4,1); font-family:sans-serif; text-align:center; line-height:1.1;}
+  .stamp.on{transform:rotate(-12deg) scale(1); opacity:.92;}
+  .memo{font-size:11px; color:#6a5d44; text-align:center; margin-top:8px; font-style:italic;}
+  /* Intro overlay */
+  #intro{position:fixed; inset:0; z-index:60; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:20px; padding:24px; text-align:center; background:radial-gradient(70% 60% at 50% 70%,#1a1008,#070810); transition:opacity .8s;}
+  #intro h1{font-size:clamp(30px,8vw,56px); margin:0; font-weight:900; letter-spacing:.02em;
+    background:linear-gradient(180deg,#fff,var(--gold)); -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow:0 0 60px rgba(255,122,24,.3);}
+  #intro .sub{color:#cfd3e0; font-size:clamp(13px,3.4vw,16px); letter-spacing:.1em; max-width:520px; line-height:1.8;}
+  #intro .tag{color:var(--gold); font-size:11px; letter-spacing:.34em; text-transform:uppercase;}
+  #startBtn{margin-top:6px; cursor:pointer; border:none; border-radius:99px; padding:15px 34px; font-size:16px; font-weight:800;
+    color:#1a1008; background:linear-gradient(135deg,var(--fire),var(--fire2)); box-shadow:0 10px 40px rgba(255,122,24,.5);
+    transition:transform .15s;} #startBtn:active{transform:scale(.95);}
+  #intro .fire{font-size:64px; animation:flick 2.4s ease-in-out infinite;}
+  @keyframes flick{50%{transform:scale(1.08) rotate(-2deg); filter:brightness(1.15);}}
+  .skip{position:fixed; top:14px; right:16px; z-index:61; font-size:12px; color:var(--muted); cursor:pointer; background:none; border:1px solid var(--line); border-radius:99px; padding:6px 14px;}
+  @media (max-width:560px){ .narr{padding:13px 16px 16px;} .frame{max-height:80vh;} }
+</style>
+</head>
+<body>
+
+<button class="skip" id="skipIntro" style="display:none">スキップ →</button>
+
+<div id="intro">
+  <div class="fire">🔥</div>
+  <div class="tag">動く投資ピッチ紙芝居</div>
+  <h1>ロジックの、向こう側</h1>
+  <p class="sub">めくると、本物が動き出す。<br>MU・bim.house・JiuFlow ―― その場で、触れる。<br><span style="opacity:.6">pre 100億・10億円を、計算じゃなく確信で出す話。</span></p>
+  <button id="startBtn">▶ はじめる</button>
+  <p class="tag" style="opacity:.5; margin-top:10px">クリック / 矢印キー / スワイプ でめくる</p>
+</div>
+
+<div id="hud" style="opacity:0; transition:opacity .6s">
+  <div id="title">ロジックの、向こう側<small>動くピッチ紙芝居</small></div>
+  <div id="meterWrap">
+    <span style="font-size:14px">🔥</span>
+    <div id="meter"><div id="meterFill"></div></div>
+    <div id="meterTxt">確信 0%</div>
+  </div>
+</div>
+
+<div id="stage"></div>
+
+<div class="hint" id="hint">クリックで次へ →</div>
+
+<div id="nav" style="opacity:0; transition:opacity .6s">
+  <div class="navbtn" id="prevBtn">←</div>
+  <div id="dots"></div>
+  <div class="navbtn primary" id="nextBtn">次へ →</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+/* ============================================================
+   動くピッチ紙芝居『ロジックの、向こう側』
+   ============================================================ */
+const SCENES = [
+  { type:'art', emoji:'🔥', kicker:'PROLOGUE',
+    title:'これは、計算をやめた大人の話。',
+    body:'エクセルの最後のセルに、答えが<span class="em">なかった</span>夜の話です。', meter:5 },
+
+  { type:'art', emoji:'📊', kicker:'場面1 ― 投資家・葉山',
+    title:'「ロジックだよ。情熱は、いらない」',
+    body:'十五年で三百社。数字が立たない会社には、一円も出さない。<br>それが葉山の<span class="em">誇り</span>だった。', meter:10 },
+
+  { type:'art', emoji:'✉️', kicker:'場面2 ― 一通の招待',
+    title:'「焚き火、見にきませんか」',
+    body:'事業計画書は、なかった。あったのは<span class="em">「今日、何を作ったか」</span>だけが毎晩積もる、ひとつの焚き火。', meter:16 },
+
+  { type:'bim', kicker:'場面3 ― bim.house｜言葉が、建つ',
+    title:'持っている土地に、これを建てたい。',
+    body:'北海道・熱海・和歌山 ― <span class="em">妄想じゃない、実際に持ってる土地</span>。<br><span style="opacity:.6">↓ チップを押すと所有地の構想が建つ。ドラッグで回せる。</span>', meter:42 },
+
+  { type:'mu', kicker:'場面4 ― MU｜毎時、一着',
+    title:'AIが、毎時間ひとつ服を作るブランド。',
+    body:'「利益率は?」――「全部、公開してます。<span class="em">隠す数字が、ひとつもない</span>」<br>葉山の赤ペンが、止まった。', meter:62 },
+
+  { type:'jf', kicker:'場面5 ― JiuFlow｜同じ場所に積もる',
+    title:'ブラジルの一本も、君の朝の一本も。',
+    body:'タップで記録。<span class="em">同じ場所に</span>積もっていく。<br>葉山は気づいた ― これは全部、同じことを言っている。', meter:78 },
+
+  { type:'art', emoji:'🔥', kicker:'場面6 ― 問い',
+    title:'「一人で、世界に届くと思ってるのか」',
+    body:'「いいえ。だから、<span class="em">仲間と</span>作ってます。一人じゃ、無理だから」<br>その一言が、葉山の十五年を静かに崩した。', meter:86 },
+
+  { type:'art', emoji:'🧮', kicker:'場面7 ― ロジックの、向こう側',
+    title:'葉山は、はじめて電卓を閉じた。',
+    body:'TAMも再現性も、何も埋まっていない。なのに<span class="em">確信だけが、火のように熱い</span>。<br>「これは、計算する案件じゃない。乗る案件だ」', meter:94 },
+
+  { type:'contract', kicker:'場面8 ― 決断',
+    title:'pre 100億の評価に、10億円。',
+    body:'「根拠は?」――「根拠なら、毎晩あの焚き火に積もってる。<span class="em">見てこい</span>」', meter:100 },
+
+  { type:'finale', emoji:'🔥', kicker:'場面9 ― ふたたび、焚き火',
+    title:'世界に届くものを、仲間と。',
+    body:'ロジックは世界を“説明”できる。動かすのは、いつだって<span class="em">確信</span>だ。<br>次に火をくべるのは、あなたかもしれない。', meter:100 },
+];
+
+const stage = document.getElementById('stage');
+let idx = 0, built = false;
+
+function embers(n=18){
+  let h='<div class="embers">';
+  for(let i=0;i<n;i++){
+    const l=Math.random()*100, d=4+Math.random()*5, dl=Math.random()*5, dx=(Math.random()*60-30)+'px';
+    h+=`<span class="ember" style="left:${l}%;animation-duration:${d}s;animation-delay:${dl}s;--dx:${dx}"></span>`;
+  }
+  return h+'</div>';
+}
+
+function sceneArt(s){
+  return `<div class="art"><div class="skybg"></div>${embers()}<div class="center-emoji">${s.emoji}</div></div>`;
+}
+
+function sceneShell(s, artHtml, extra=''){
+  const demo = /bim|mu|jf|contract/.test(s.type) ? ' demo' : '';
+  return `<div class="frame${demo}">${artHtml}
+    <div class="narr">
+      <p class="kicker">${s.kicker}</p>
+      <h2>${s.title}</h2>
+      <p>${s.body}</p>
+      ${extra}
+    </div></div>`;
+}
+
+function videoSlot(label, ytid){
+  if(ytid) return `<div class="videoslot"><iframe loading="lazy" src="https://www.youtube.com/embed/${ytid}" allowfullscreen></iframe></div>`;
+  return `<div class="videoslot">🎬 ${label}（動画を差し込めます）</div>`;
+}
+
+/* ---------- build each scene DOM ---------- */
+function buildScene(s,i){
+  const el=document.createElement('div');
+  el.className='scene'; el.dataset.i=i;
+  let art='', extra='';
+
+  if(s.type==='art'||s.type==='finale'){
+    art=sceneArt(s);
+    if(s.type==='finale'){
+      extra=`<div class="links">
+        <a class="link real" href="https://wearmu.com/transparency" target="_blank" rel="noopener">📊 全数字 /transparency</a>
+        <a class="link" href="https://bim.house" target="_blank" rel="noopener">🏠 bim.house</a>
+        <a class="link" href="https://jiuflow.com" target="_blank" rel="noopener">🥋 JiuFlow</a>
+      </div>
+      <div class="links" style="margin-top:8px"><button class="link real" id="replayBtn">↻ もう一度めくる</button>
+      <button class="link" id="shareBtn">🔗 共有</button></div>`;
+    }
+  }
+  else if(s.type==='bim'){
+    art=`<div class="live"><div class="livebar"><span class="live-dot"></span><span class="url">bim.house</span><span style="opacity:.5">/ ライブ実機（このページ内で動いてます）</span><span class="badge">● LIVE</span></div>
+      <div class="livebody">
+        <canvas id="bimCanvas"></canvas>
+        <div class="houki" id="bimHouki"></div>
+        <div class="bim-spec" id="bimSpec"></div>
+        <div class="bim-ui">
+          <div class="chips">
+            <span class="chip" data-q="北海道 弟子屈 平屋 サウナ 犬と暮らす">🏔 北海道・弟子屈</span>
+            <span class="chip" data-q="熱海 2階建て 海を望む 屋上テラス">🌊 熱海</span>
+            <span class="chip" data-q="和歌山 平屋 中庭のある家 民泊">⛩ 和歌山</span>
+            <span class="chip" data-q="3階 ガレージ 屋上テラス">3階＋ガレージ＋屋上</span>
+          </div>
+          <div class="bim-input">
+            <input id="bimInput" placeholder="例：北海道 弟子屈 平屋 サウナ" value="北海道 弟子屈 平屋 サウナ 犬と暮らす" autocomplete="off">
+            <button id="bimGo">建てる</button>
+          </div>
+        </div>
+      </div></div>`;
+    extra=`<div class="links"><a class="link real" href="https://bim.house" target="_blank" rel="noopener">本物の bim.house を開く →</a>
+      <a class="link" href="https://bim.house" target="_blank" rel="noopener">🎬 デモ動画</a></div>`;
+  }
+  else if(s.type==='mu'){
+    art=`<div class="live"><div class="livebar"><span class="live-dot"></span><span class="url">wearmu.com</span><span style="opacity:.5">/ 毎時一着・自動生成ティッカー</span><span class="badge">● LIVE</span></div>
+      <div class="livebody"><div class="mu">
+        <div class="mu-count">次の一着まで <b id="muCountdown">59:59</b></div>
+        <div class="mu-card" id="muCard"><div class="mu-tee" id="muTee"></div></div>
+        <div class="mu-meta">今日の生成：<b id="muGen">0</b> 着目 ・ <span id="muName">—</span></div>
+        <div class="mu-nums">
+          <div class="mu-num"><b id="muTotal">—</b><span>累計デザイン</span></div>
+          <div class="mu-num"><b>100%</b><span>原価公開</span></div>
+          <div class="mu-num"><b>24h</b><span>無人稼働</span></div>
+        </div>
+      </div></div></div>`;
+    extra=`<div class="links"><a class="link real" href="https://wearmu.com" target="_blank" rel="noopener">wearmu.com を開く →</a>
+      <a class="link" href="https://wearmu.com/transparency" target="_blank" rel="noopener">📊 透明性レポート</a></div>`;
+  }
+  else if(s.type==='jf'){
+    art=`<div class="live"><div class="livebar"><span class="live-dot"></span><span class="url">jiuflow.com</span><span style="opacity:.5">/ 一本を記録 → 世界に積もる</span><span class="badge">● LIVE</span></div>
+      <div class="livebody"><div class="jf">
+        <div class="jf-map" id="jfMap"><div class="jf-globe">🌍</div></div>
+        <div class="jf-tap">
+          <div class="jf-counter">世界の記録：<b id="jfCount">128,402</b> 本</div>
+          <div class="jf-tech" data-tech="クローズドガード">
+            <span class="e">🥋</span><div class="t"><b>クローズドガード</b><span>今朝のスパー、もう記録した?</span></div><span class="go">＋記録</span>
+          </div>
+          <div class="jf-tech" data-tech="三角絞め">
+            <span class="e">🔺</span><div class="t"><b>三角絞め</b><span>地球の裏の道場と、同じノートへ</span></div><span class="go">＋記録</span>
+          </div>
+        </div>
+      </div></div></div>`;
+    extra=`<div class="links"><a class="link real" href="https://jiuflow.com" target="_blank" rel="noopener">JiuFlow を開く →</a>
+      <a class="link" href="https://jiuflow.com" target="_blank" rel="noopener">🎬 デモ動画</a></div>`;
+  }
+  else if(s.type==='contract'){
+    art=`<div class="art"><div class="skybg"></div>${embers(10)}
+      <div class="contract">
+        <div class="paper">
+          <h3>出 資 契 約 書</h3>
+          <div class="prow"><span>対象</span><b>Enabler Inc.</b></div>
+          <div class="prow"><span>評価額（pre）</span><b id="cval">¥0</b></div>
+          <div class="prow big"><span>出資額</span><b id="cinv">¥0</b></div>
+          <div class="prow"><span>根拠</span><b>焚き火</b></div>
+          <div class="sign">
+            <svg width="150" height="46" viewBox="0 0 150 46"><path class="sign-path" id="signPath" d="M6,34 C18,8 26,40 38,20 C46,8 52,38 64,22 C74,10 84,40 96,18 C108,6 118,34 144,14"/></svg>
+            <div class="stamp" id="stamp">葉山<br>承認</div>
+          </div>
+          <div class="memo" id="memo"></div>
+        </div>
+      </div></div>`;
+  }
+
+  el.innerHTML = sceneShell(s, art, extra);
+  return el;
+}
+
+/* ---------- mount all ---------- */
+SCENES.forEach((s,i)=>stage.appendChild(buildScene(s,i)));
+
+/* dots */
+const dotsEl=document.getElementById('dots');
+SCENES.forEach((_,i)=>{ const d=document.createElement('div'); d.className='dot'; d.onclick=()=>go(i); dotsEl.appendChild(d); });
+
+/* ---------- navigation ---------- */
+const mFill=document.getElementById('meterFill'), mTxt=document.getElementById('meterTxt');
+function go(n){
+  n=Math.max(0,Math.min(SCENES.length-1,n));
+  const scenes=[...document.querySelectorAll('.scene')];
+  scenes.forEach((el,i)=>{
+    el.classList.toggle('active',i===n);
+    el.classList.toggle('prev',i<n);
+  });
+  [...dotsEl.children].forEach((d,i)=>d.classList.toggle('on',i===n));
+  const m=SCENES[n].meter;
+  mFill.style.width=m+'%'; mTxt.textContent='確信 '+m+'%';
+  document.getElementById('prevBtn').toggleAttribute('disabled',n===0);
+  const nb=document.getElementById('nextBtn');
+  nb.style.opacity = n===SCENES.length-1?'.3':'1';
+  nb.style.pointerEvents = n===SCENES.length-1?'none':'auto';
+  document.getElementById('hint').style.opacity = n===0?'.7':'0';
+  idx=n;
+  onEnter(n);
+}
+document.getElementById('nextBtn').onclick=()=>go(idx+1);
+document.getElementById('prevBtn').onclick=()=>go(idx-1);
+window.addEventListener('keydown',e=>{
+  if(document.getElementById('intro').style.display==='none'||!built){
+    if(e.key==='ArrowRight'||e.key===' ') go(idx+1);
+    if(e.key==='ArrowLeft') go(idx-1);
+  }
+});
+/* click-to-advance on art scenes (not on inputs/buttons/links) */
+stage.addEventListener('click',e=>{
+  if(e.target.closest('input,button,a,.chip,.jf-tech,canvas,.mu-card')) return;
+  const t=SCENES[idx].type;
+  if(t==='art') go(idx+1);
+});
+/* swipe */
+let sx=0;
+stage.addEventListener('touchstart',e=>sx=e.touches[0].clientX,{passive:true});
+stage.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-sx;
+  if(e.target.closest('input,canvas,.bim-ui')) return;
+  if(dx<-50) go(idx+1); else if(dx>50) go(idx-1);
+},{passive:true});
+
+/* ---------- per-scene activations ---------- */
+let muStarted=false, bimStarted=false;
+function onEnter(n){
+  const t=SCENES[n].type;
+  if(t==='bim' && !bimStarted){ bimStarted=true; initBim(); }
+  if(t==='mu' && !muStarted){ muStarted=true; initMU(); }
+  if(t==='contract'){ runContract(); }
+}
+
+/* ============ bim.house live 3D ============ */
+function initBim(){
+  if(typeof THREE==='undefined'){ document.getElementById('bimSpec').textContent='3D読込失敗'; return; }
+  const canvas=document.getElementById('bimCanvas');
+  const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(2,devicePixelRatio));
+  const scene=new THREE.Scene();
+  scene.background=new THREE.Color(0x0e1426);
+  scene.fog=new THREE.Fog(0x0e1426,22,46);
+  const cam=new THREE.PerspectiveCamera(42,1,.1,100); cam.position.set(7,4.6,8); cam.lookAt(0,1.3,0);
+  const resize=()=>{const r=canvas.getBoundingClientRect(); renderer.setSize(r.width,r.height,false); cam.aspect=r.width/Math.max(1,r.height); cam.updateProjectionMatrix();};
+  scene.add(new THREE.HemisphereLight(0xfff3e2,0x2a3050,1.5));
+  const sun=new THREE.DirectionalLight(0xffe2b8,2.0); sun.position.set(8,14,6); scene.add(sun);
+  const fill=new THREE.DirectionalLight(0x9fb4ff,0.6); fill.position.set(-6,5,-4); scene.add(fill);
+  // ground
+  const ground=new THREE.Mesh(new THREE.CircleGeometry(13,48),new THREE.MeshStandardMaterial({color:0x141a2b,roughness:1}));
+  ground.rotation.x=-Math.PI/2; ground.position.y=-.02; scene.add(ground);
+  const grid=new THREE.GridHelper(26,26,0x2a3350,0x1c2238); grid.position.y=0; scene.add(grid);
+  const house=new THREE.Group(); scene.add(house);
+
+  function parse(q){
+    q=(q||'').toLowerCase();
+    let floors=1;
+    if(/(平屋|1階|ひらや)/.test(q)) floors=1;
+    else if(/3階|３階|三階/.test(q)) floors=3;
+    else if(/2階|２階|二階|２かい/.test(q)) floors=2;
+    let rooms=2;
+    const m=q.match(/(\d+)\s*(ldk|dk|k|部屋)/); if(m) rooms=Math.max(1,parseInt(m[1])+1);
+    const sauna=/(サウナ|sauna)/.test(q);
+    const garage=/(ガレージ|車庫|garage|カーポート)/.test(q);
+    const court=/(中庭|courtyard|パティオ|patio)/.test(q);
+    const terrace=/(屋上|テラス|ルーフ|roof|terrace)/.test(q);
+    const flat=floors===1;
+    let loc='';
+    if(/(弟子屈|北海道|美留和|標茶)/.test(q)) loc='北海道・弟子屈 ｜ 所有地';
+    else if(/熱海/.test(q)) loc='熱海 ｜ 所有地';
+    else if(/和歌山/.test(q)) loc='和歌山 ｜ 所有地';
+    return {floors,rooms,sauna,garage,court,terrace,flat,loc};
+  }
+
+  function build(spec){
+    while(house.children.length) house.remove(house.children[0]);
+    const fh=2.4, w=6.4, d=4.8;
+    const wallMat=new THREE.MeshStandardMaterial({color:0xf2ede2,roughness:.85});
+    const woodMat=new THREE.MeshStandardMaterial({color:0xb98a52,roughness:.7});
+    const glassMat=new THREE.MeshStandardMaterial({color:0x9fd4e6,roughness:.1,metalness:.3,emissive:0x16323d,emissiveIntensity:.4});
+    // body
+    const bodyH=fh*spec.floors;
+    const body=new THREE.Mesh(new THREE.BoxGeometry(w,bodyH,d),wallMat);
+    body.position.y=bodyH/2; house.add(body);
+    // floor slabs / windows
+    for(let f=0;f<spec.floors;f++){
+      for(let i=0;i<3;i++){
+        const win=new THREE.Mesh(new THREE.BoxGeometry(1.1,1.2,.1),glassMat);
+        win.position.set(-2+i*2, f*fh+1.3, d/2+.01); house.add(win);
+      }
+    }
+    // roof
+    if(spec.flat){
+      const slab=new THREE.Mesh(new THREE.BoxGeometry(w+.4,.3,d+.4),woodMat);
+      slab.position.y=bodyH+.15; house.add(slab);
+      if(spec.terrace){
+        const rail=new THREE.Mesh(new THREE.BoxGeometry(w,.5,.08),new THREE.MeshStandardMaterial({color:0x445,roughness:.6}));
+        rail.position.set(0,bodyH+.55,d/2); house.add(rail);
+      }
+    } else {
+      const roof=new THREE.Mesh(new THREE.CylinderGeometry(.001,w*0.72,1.8,4),new THREE.MeshStandardMaterial({color:0x8a4b2a,roughness:.8}));
+      roof.rotation.y=Math.PI/4; roof.position.y=bodyH+.9; roof.scale.z=d/w; house.add(roof);
+    }
+    // sauna annex
+    if(spec.sauna){
+      const sa=new THREE.Mesh(new THREE.BoxGeometry(2,2.1,2),woodMat);
+      sa.position.set(w/2+1.2,1.05,-1); house.add(sa);
+      const chimney=new THREE.Mesh(new THREE.BoxGeometry(.3,1,.3),new THREE.MeshStandardMaterial({color:0x333}));
+      chimney.position.set(w/2+1.7,2.6,-1.4); house.add(chimney);
+    }
+    // garage
+    if(spec.garage){
+      const ga=new THREE.Mesh(new THREE.BoxGeometry(2.6,2,3.2),new THREE.MeshStandardMaterial({color:0xd8d2c4,roughness:.9}));
+      ga.position.set(-w/2-1.5,1,.6); house.add(ga);
+    }
+    // courtyard tree
+    if(spec.court){
+      const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.12,.16,1),woodMat); trunk.position.set(0,.5,0);
+      const leaf=new THREE.Mesh(new THREE.IcosahedronGeometry(.8,0),new THREE.MeshStandardMaterial({color:0x4a8f4a,roughness:1}));
+      leaf.position.set(0,1.5,0);
+      // raise whole body to suggest U-shape (visual hint)
+      house.add(trunk); house.add(leaf);
+    }
+    // door
+    const door=new THREE.Mesh(new THREE.BoxGeometry(1,1.9,.12),new THREE.MeshStandardMaterial({color:0x5a3a22}));
+    door.position.set(0.1,.95,d/2+.02); house.add(door);
+    return {bodyH,w,d};
+  }
+
+  function updateUI(spec){
+    const total=Math.round((spec.floors* (spec.rooms*9+18))+ (spec.sauna?6:0)+(spec.garage?16:0));
+    document.getElementById('bimSpec').innerHTML=
+      `${spec.loc?'<span style="color:#ffb347;font-weight:800">📍 '+spec.loc+'</span><br>':''}<b>${total}㎡</b><br>${spec.floors}階建て / ${spec.rooms}室${spec.sauna?'<br>＋サウナ':''}${spec.garage?'<br>＋ガレージ':''}${spec.terrace?'<br>＋屋上テラス':''}`;
+    const checks=[['建ぺい率',true],['容積率',true],['斜線制限',true],['接道義務',true]];
+    const hk=document.getElementById('bimHouki'); hk.innerHTML='';
+    checks.forEach((c,i)=>{
+      const b=document.createElement('div'); b.className='hbadge'; b.innerHTML='✓ '+c[0]+' 適合';
+      hk.appendChild(b); setTimeout(()=>b.classList.add('show'),120+i*140);
+    });
+  }
+
+  let target=null;
+  function rebuild(q){ const spec=parse(q); build(spec); updateUI(spec); }
+  rebuild(document.getElementById('bimInput').value);
+
+  document.getElementById('bimGo').onclick=()=>rebuild(document.getElementById('bimInput').value);
+  document.getElementById('bimInput').addEventListener('keydown',e=>{if(e.key==='Enter')rebuild(e.target.value);});
+  document.querySelectorAll('#stage .chip').forEach(c=>c.onclick=()=>{
+    const q=c.dataset.q; const inp=document.getElementById('bimInput'); if(inp){inp.value=q;} rebuild(q);
+  });
+
+  // drag rotate
+  let drag=false,px=0,rot=0.7,auto=true;
+  canvas.addEventListener('pointerdown',e=>{drag=true;auto=false;px=e.clientX;});
+  window.addEventListener('pointerup',()=>drag=false);
+  window.addEventListener('pointermove',e=>{if(drag){rot+=(e.clientX-px)*0.01;px=e.clientX;}});
+
+  function loop(){
+    requestAnimationFrame(loop);
+    if(auto) rot+=0.004;
+    house.rotation.y=rot;
+    resize();
+    renderer.render(scene,cam);
+  }
+  resize(); loop();
+  window.addEventListener('resize',resize);
+}
+
+/* ============ MU live ticker ============ */
+const TEES=[
+  {bg:'linear-gradient(135deg,#ff7a18,#ffb347)',t:'毎時、一着',n:'WAVE / 衝撃波'},
+  {bg:'linear-gradient(135deg,#222,#555)',t:'MU de MU',n:'Monochrome 01'},
+  {bg:'linear-gradient(135deg,#1d6fb8,#5fb6e6)',t:'世界へ',n:'Hawaii Fes'},
+  {bg:'linear-gradient(135deg,#2a9d5c,#7bd39a)',t:'透明だ',n:'Transparency'},
+  {bg:'linear-gradient(135deg,#7b3fa0,#c08fe0)',t:'NOUNS',n:'Owner #042'},
+];
+function initMU(){
+  const tee=document.getElementById('muTee'), card=document.getElementById('muCard');
+  const nameEl=document.getElementById('muName'), genEl=document.getElementById('muGen'), totalEl=document.getElementById('muTotal');
+  let gi=0, gen=14, total=8421;
+  function show(i){
+    const t=TEES[i%TEES.length];
+    card.style.background=t.bg;
+    tee.innerHTML=`<div style="text-align:center;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.4)">
+      <div style="font-size:11px;letter-spacing:.3em;opacity:.85">wearmu</div>
+      <div style="font-size:30px;font-weight:900;margin:6px 0">${t.t}</div>
+      <div style="font-size:11px;opacity:.85">${t.n}</div></div>`;
+    nameEl.textContent=t.n;
+  }
+  show(0);
+  totalEl.textContent=total.toLocaleString(); genEl.textContent=gen;
+  // rotate "designs" + fake countdown to feel毎時
+  setInterval(()=>{ gi++; card.style.transform='rotateY(90deg)';
+    setTimeout(()=>{ show(gi); card.style.transform='rotateY(0)'; gen++; total++;
+      genEl.textContent=gen; totalEl.textContent=total.toLocaleString(); },300);
+  },3200);
+  const cd=document.getElementById('muCountdown');
+  let s=3599;
+  setInterval(()=>{ s=(s-1+3600)%3600; const m=String(Math.floor(s/60)).padStart(2,'0'),ss=String(s%60).padStart(2,'0'); cd.textContent=`${m}:${ss}`; },1000);
+}
+
+/* ============ JiuFlow taps ============ */
+(function initJF(){
+  // delegated because scenes already in DOM
+  document.addEventListener('click',e=>{
+    const tech=e.target.closest('.jf-tech'); if(!tech) return;
+    const map=document.getElementById('jfMap'); const cnt=document.getElementById('jfCount');
+    if(map){ const p=document.createElement('div'); p.className='ping';
+      p.style.left=(15+Math.random()*70)+'%'; p.style.top=(15+Math.random()*65)+'%';
+      map.appendChild(p); setTimeout(()=>p.remove(),2600); }
+    if(cnt){ let v=parseInt(cnt.textContent.replace(/,/g,''))+1; cnt.textContent=v.toLocaleString(); }
+    tech.style.transform='scale(.97)'; setTimeout(()=>tech.style.transform='',150);
+    const go=tech.querySelector('.go'); if(go){const o=go.textContent; go.textContent='✓ 記録した'; setTimeout(()=>go.textContent=o,1200);}
+  });
+})();
+
+/* ============ contract finale ============ */
+let contractRun=false;
+function runContract(){
+  if(contractRun) return; contractRun=true;
+  const cval=document.getElementById('cval'), cinv=document.getElementById('cinv');
+  function countTo(el,target,prefix,dur){
+    const t0=performance.now();
+    function step(t){ const k=Math.min(1,(t-t0)/dur); const e=1-Math.pow(1-k,3);
+      el.textContent=prefix+Math.round(target*e).toLocaleString(); if(k<1)requestAnimationFrame(step);} requestAnimationFrame(step);
+  }
+  setTimeout(()=>countTo(cval,10000000000,'¥',1400),400);
+  setTimeout(()=>countTo(cinv,1000000000,'¥',1400),1100);
+  const path=document.getElementById('signPath');
+  setTimeout(()=>{ path.style.transition='stroke-dashoffset 1.3s ease'; path.style.strokeDashoffset='0'; },2200);
+  setTimeout(()=>document.getElementById('stamp').classList.add('on'),3500);
+  setTimeout(()=>{ document.getElementById('memo').textContent='「ロジックは、後からついてくる」'; },3900);
+}
+
+/* ---------- intro ---------- */
+function start(){
+  if(built) return; built=true;
+  const intro=document.getElementById('intro');
+  intro.style.opacity='0'; setTimeout(()=>intro.style.display='none',800);
+  document.getElementById('skipIntro').style.display='none';
+  document.getElementById('hud').style.opacity='1';
+  document.getElementById('nav').style.opacity='1';
+  go(0);
+}
+document.getElementById('startBtn').onclick=start;
+document.getElementById('skipIntro').onclick=start;
+setTimeout(()=>document.getElementById('skipIntro').style.display='block',1200);
+
+/* replay + share (delegated) */
+document.addEventListener('click',e=>{
+  if(e.target.id==='replayBtn'){ go(0); }
+  if(e.target.id==='shareBtn'){
+    const u=location.href;
+    if(navigator.share) navigator.share({title:'ロジックの、向こう側',url:u}).catch(()=>{});
+    else { navigator.clipboard?.writeText(u); e.target.textContent='✓ コピーした'; }
+  }
+});
+</script>
+</body>
+</html>
