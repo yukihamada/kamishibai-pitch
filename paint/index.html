@@ -55,8 +55,8 @@
   <div class="top"><span style="font-size:18px">🔒</span><b>ローカルで、つくる</b><a href="../make/">/make へ</a></div>
   <div class="kick">作るを、空気に</div>
   <h1>あなたの端末だけで、<br>画像をつくる。</h1>
-  <div class="badge">🔒 完全無料 ・ 通信なし ・ 端末内で生成</div>
-  <p class="lead">クラウドAPIを一切使いません。<b>あなたのGPU(WebGPU)</b>だけで動くので、<b>何枚作っても完全無料</b>。モデルは初回だけダウンロードして、あとはオフラインでも動きます。</p>
+  <div class="badge">🧪 端末内（WebGPU・実験）・ 無料 ・ 通信なし</div>
+  <p class="lead"><b>端末内（WebGPU）生成は実験中</b>です。クラウドAPIを使わず<b>あなたのGPUだけ</b>で動けば完全無料ですが、現状ブラウザ側の制約で<b>失敗することがあります</b>。<b>自前GPU(m5/FLUX)で完全無料の安定版を準備中</b>。</p>
 
   <div class="panel">
     <textarea id="prompt" placeholder="例：a minimal line-art emblem of a snow mountain and a jiu-jitsu belt, gold on black"></textarea>
@@ -106,9 +106,16 @@ genBtn.addEventListener('click', async ()=>{
   if(!hasGPU) return;
   genBtn.disabled=true; dlbox.style.display='none'; cv.style.display='none';
   if(window.track) window.track('paint:generate');
+  // 既知の制約: 端末内SD(diffusers.js)はWeb Worker内で依存(buffer/long)を解決できず失敗しがち。
+  // 無限ローディングや謎エラーで止まらないよう、ウォッチドッグで正直に切り上げる。
+  let produced=false;
+  const watchdog=setTimeout(()=>{ if(!produced){
+    setStatus('🧪 端末内生成（実験）が時間内に終わりませんでした。<br><span style="color:var(--muted)">ブラウザ内SDはまだ不安定です。<b>自前GPU(m5/FLUX)で完全無料の安定版を準備中</b>。WebGPU対応PCなら数分待つと出ることもあります。</span>');
+    genBtn.disabled=false;
+  } }, 80000);
   try{
     if(!pipe){
-      setStatus('🔒 ブラウザ内エンジンを読み込み中…（初回のみモデルDL・数GB）');
+      setStatus('🧪 実験: ブラウザ内エンジンを読み込み中…（初回のみモデルDL・数GB／失敗することがあります）');
       const mod = await import('https://esm.sh/@aislamov/diffusers.js@latest');
       const DiffusionPipeline = mod.DiffusionPipeline || (mod.default && mod.default.DiffusionPipeline);
       if(!DiffusionPipeline) throw new Error('diffusers.js の読み込みに失敗しました');
@@ -126,12 +133,14 @@ genBtn.addEventListener('click', async ()=>{
     const img = images[0];
     const data = await img.toImageData ? await img.toImageData({tensorLayout:'NCWH', format:'RGB'}) : null;
     if(data){ cv.width=data.width; cv.height=data.height; cv.getContext('2d').putImageData(data,0,0); }
-    cv.style.display='block'; prog(1); setStatus('✅ できあがり（このページから出ていません＝完全ローカル）');
+    produced=true; clearTimeout(watchdog);
+    cv.style.display='block'; prog(1); setStatus('✅ できあがり（端末内で生成＝完全ローカル・無料）');
     dl.href=cv.toDataURL('image/png'); dlbox.style.display='block';
     if(window.track) window.track('paint:done');
   }catch(e){
-    setStatus('⚠ 生成に失敗しました：'+((e&&e.message)||e)+'<br><span style="color:var(--muted)">WebGPU対応のPC Chrome/Edgeでお試しください。</span>');
-    if(window.track) window.track('paint:error');
+    produced=true; clearTimeout(watchdog);
+    setStatus('🧪 端末内生成（実験）は失敗しました。<br><span style="color:var(--muted)">原因: ブラウザのWeb Worker制約でSDライブラリが不安定（既知）。<b>自前GPU(m5/FLUX)で完全無料の安定版を準備中</b>です。</span>');
+    if(window.track) window.track('paint:error:'+((e&&e.message)||e).toString().slice(0,40));
   }finally{ genBtn.disabled=false; }
 });
 </script>
