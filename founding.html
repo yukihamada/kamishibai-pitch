@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>熊牛・天空の道場 — ファウンディング</title>
+<meta name="description" content="北海道・熊牛に、言葉から柔術の道場を建てる。支援が大きいほど、あなたの取り分（貢献シェア）と記名が大きくなる。買うことが、つくることの始まりに。">
+<meta property="og:title" content="熊牛・天空の道場 — ファウンディング">
+<meta property="og:description" content="買うことが、つくることの始まりになる。">
+<meta property="og:image" content="https://mockups.wearmu.com/catalog/mockups/TENKUDOJO-AGENT-TEE-2ddf4be0.png">
+<style>
+  :root{--ink:#0b0d16;--ink2:#11152a;--gold:#e9c46a;--fire:#ff7a18;--fire2:#ffb347;--line:rgba(255,255,255,.12);--muted:#9aa0b4;}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+    background:radial-gradient(90% 60% at 50% -10%,#1a1322,#0b0d16 60%);color:#fff;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;}
+  .wrap{max-width:560px;margin:0 auto;padding:18px 16px 60px;}
+  .top{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted);}
+  .top .mark{font-size:20px;}
+  .top a{margin-left:auto;text-decoration:none;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:5px 11px;font-size:11px;}
+  h1{font-size:clamp(22px,5.4vw,30px);font-weight:900;margin:16px 0 4px;line-height:1.3;}
+  .lead{color:#d7dae6;font-size:14px;line-height:1.7;margin:0 0 16px;}
+  .lead b{color:var(--fire2);}
+  /* listing card */
+  .listing{background:linear-gradient(180deg,#141a2b,#0d111e);border:1px solid var(--line);border-radius:18px;overflow:hidden;
+    box-shadow:0 24px 60px rgba(0,0,0,.45);}
+  .hero{position:relative;background:#0a0d16;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;}
+  .hero img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .3s;}
+  .hero .live{position:absolute;top:12px;left:12px;background:rgba(40,208,122,.16);color:#28d07a;border:1px solid rgba(40,208,122,.3);
+    font-size:10.5px;font-weight:800;letter-spacing:.1em;padding:5px 10px;border-radius:99px;display:flex;gap:6px;align-items:center;}
+  .hero .live::before{content:"";width:7px;height:7px;border-radius:99px;background:#28d07a;box-shadow:0 0 8px #28d07a;animation:pulse 1.6s infinite;}
+  @keyframes pulse{50%{opacity:.4;}}
+  .body{padding:16px 16px 18px;}
+  .store{font-size:11px;color:var(--gold);letter-spacing:.14em;}
+  .title{font-size:18px;font-weight:800;margin:4px 0 2px;}
+  .price{font-size:30px;font-weight:900;display:flex;align-items:baseline;gap:8px;}
+  .price small{font-size:12px;color:var(--muted);font-weight:600;}
+  .desc{color:#cdd2e0;font-size:13px;line-height:1.7;margin:8px 0 0;}
+  /* progress */
+  .goal{margin:14px 0 4px;display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);}
+  .goal b{color:#fff;}
+  .pbar{height:8px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden;}
+  .pfill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--fire),var(--fire2));width:0;transition:width .8s cubic-bezier(.2,.8,.2,1);}
+  /* tier picker */
+  .sec{margin-top:22px;}
+  .sec h2{font-size:13px;letter-spacing:.04em;color:var(--gold);margin:0 0 10px;text-transform:uppercase;}
+  .tiers{display:flex;gap:8px;}
+  .tier{flex:1;cursor:pointer;border:1px solid var(--line);background:rgba(255,255,255,.04);border-radius:13px;padding:11px 6px;text-align:center;transition:.18s;}
+  .tier.on{border-color:var(--fire2);background:rgba(255,122,24,.14);box-shadow:0 0 0 1px var(--fire2) inset;}
+  .tier .tn{font-size:11px;color:#cdd2e0;font-weight:700;}
+  .tier .tp{font-size:14px;font-weight:900;margin-top:3px;}
+  .tier.on .tp{color:var(--fire2);}
+  /* share / 取り分 */
+  .share{margin-top:16px;background:linear-gradient(135deg,rgba(255,122,24,.12),rgba(233,196,106,.06));border:1px solid rgba(255,122,24,.3);
+    border-radius:14px;padding:14px 16px;}
+  .share .row{display:flex;align-items:flex-end;justify-content:space-between;}
+  .share .lbl{font-size:11px;color:var(--muted);letter-spacing:.06em;}
+  .share .big{font-size:30px;font-weight:900;color:var(--fire2);line-height:1;}
+  .share .sub{font-size:11px;color:#cdd2e0;margin-top:8px;line-height:1.7;}
+  .share .sub b{color:#fff;}
+  .perks{list-style:none;padding:0;margin:10px 0 0;display:flex;flex-direction:column;gap:5px;}
+  .perks li{font-size:12.5px;color:#dfe3ee;display:flex;gap:8px;align-items:flex-start;}
+  .perks li::before{content:"✓";color:#28d07a;font-weight:900;}
+  /* mypage */
+  .card{margin-top:14px;background:radial-gradient(120% 120% at 0% 0%,#1d2740,#0e1424);border:1px solid var(--line);border-radius:16px;padding:16px;position:relative;overflow:hidden;}
+  .card::after{content:"🥋";position:absolute;right:-10px;bottom:-18px;font-size:96px;opacity:.06;}
+  .card .ttl{font-size:10px;letter-spacing:.28em;color:var(--gold);text-transform:uppercase;}
+  .card .nm{font-size:22px;font-weight:900;margin:4px 0;min-height:28px;}
+  .card .meta{font-size:12px;color:var(--muted);}
+  .card .meta b{color:#fff;}
+  input.name{width:100%;margin-top:10px;background:rgba(255,255,255,.07);border:1px solid var(--line);color:#fff;border-radius:11px;padding:12px 13px;font-size:15px;outline:none;}
+  input.name:focus{border-color:var(--fire2);}
+  .btns{display:flex;flex-direction:column;gap:9px;margin-top:14px;}
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;border:none;cursor:pointer;border-radius:13px;padding:15px;font-size:16px;font-weight:800;text-decoration:none;}
+  .btn.buy{background:linear-gradient(135deg,var(--fire),var(--fire2));color:#1a1008;box-shadow:0 8px 26px rgba(255,122,24,.4);}
+  .btn.ghost{background:rgba(255,255,255,.06);border:1px solid var(--line);color:#fff;}
+  .btn:active{transform:scale(.98);}
+  .note{font-size:11px;color:var(--muted);line-height:1.7;margin-top:14px;}
+  .board{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;}
+  .chip{font-size:11.5px;padding:6px 11px;border-radius:99px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:#dfe3ee;}
+  .chip.you{border-color:var(--fire2);color:var(--fire2);}
+  .foot{margin-top:26px;text-align:center;font-size:11px;color:var(--muted);}
+  .foot a{color:var(--gold);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span class="mark">🥋</span><b>熊牛・天空の道場</b><a href="./">← 紙芝居へ</a></div>
+
+  <h1>買うことが、<br>つくることの始まりになる。</h1>
+  <p class="lead">北海道・熊牛の所有地に、言葉から設計し（bim.house）、仲間で建て、技を積む――<b>柔術の道場</b>をつくる。<br>支援が大きいほど、あなたの<b>取り分（貢献シェア）</b>と、道場に刻む名前が大きくなる。</p>
+
+  <div class="listing">
+    <div class="hero"><img id="heroImg" src="https://mockups.wearmu.com/catalog/mockups/TENKUDOJO-AGENT-TEE-2ddf4be0.png" alt="founding"><span class="live">LIVE・販売中</span></div>
+    <div class="body">
+      <div class="store">熊牛・天空の道場 ・ wearmu</div>
+      <div class="title" id="lTitle">ファウンディング Tシャツ</div>
+      <div class="price">¥<span id="lPrice">9,800</span> <small id="lKind">Tシャツ</small></div>
+      <p class="desc">エンブレムは山（天空）・帯の結び・火種。Bella+Canvas 3001 ブラック／前面プリント。売上は道場づくりにあてます。</p>
+      <div class="goal"><span>道場 初期費用の目標</span><b>¥3,000,000</b></div>
+      <div class="pbar"><div class="pfill" id="pfill"></div></div>
+      <div class="goal" style="margin-top:6px"><span>founding 最初の100名を募集中</span><span id="goalPct" style="color:var(--fire2);font-weight:800">あなたの分 0%</span></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>① 支援する金額を選ぶ</h2>
+    <div class="tiers" id="tiers"></div>
+  </div>
+
+  <div class="share">
+    <div class="row"><div><div class="lbl">あなたの取り分（貢献シェア）</div><div class="big" id="shareBig">0.33%</div></div>
+      <div style="text-align:right"><div class="lbl">道場の床</div><div class="big" id="tiles" style="font-size:22px">5枚</div></div></div>
+    <div class="sub" id="shareSub">¥9,800 = 初期費用の <b>0.33%</b>。床 <b>5枚</b>に、あなたの名前が刻まれます。</div>
+    <ul class="perks" id="perks"></ul>
+  </div>
+
+  <div class="sec">
+    <h2>② マイページ（あなたのファウンディングカード）</h2>
+    <div class="card">
+      <div class="ttl">FOUNDING MEMBER</div>
+      <div class="nm" id="cardName">— お名前 —</div>
+      <div class="meta"><b id="cardTier">サポーター</b> ・ ¥<span id="cardPrice">9,800</span> ・ <span id="cardShare">0.33%</span> ・ <span id="cardDate">—</span></div>
+      <input class="name" id="nameInput" placeholder="道場に刻む名前（ニックネーム可）" maxlength="24" autocomplete="off">
+    </div>
+    <div class="btns">
+      <a class="btn buy" id="buyBtn" href="#" target="_blank" rel="noopener">🛒 この内容で支援する（¥<span id="buyPrice">9,800</span>）→</a>
+      <button class="btn ghost" id="saveBtn">★ マイページに予約として保存</button>
+    </div>
+    <div class="note" id="saved"></div>
+    <div class="board" id="board"></div>
+    <p class="note">※「取り分（貢献シェア）」は道場の初期費用に占める支援額の割合を表したもので、記名・特典・優先案内のための目安です（金融商品・出資持分ではありません）。実際の購入・決済は wearmu（Stripe）で行われます。</p>
+  </div>
+
+  <div class="foot"><a href="./">← 動くピッチ紙芝居『ロジックの、向こう側』へ戻る</a><br>世界に届くものを、仲間と。🔥</div>
+</div>
+
+<script>
+const TIERS=[
+ {key:'応援',  price:3000,  kind:'ステッカー', sku:'TENKUDOJO-AGENT-STICKER-09d284e2', perks:['耐水ステッカー（約10cm）','gi・水筒・PCに貼れる','つくる仲間の印']},
+ {key:'サポーター', price:9800, kind:'Tシャツ', sku:'TENKUDOJO-AGENT-TEE-2ddf4be0', perks:['ファウンディングT（黒）','道場の床に名前','落成のお知らせ']},
+ {key:'ファウンダー', price:30000, kind:'Tシャツ', sku:'TENKUDOJO-AGENT-TEE-06886684', perks:['T（黒）','壁に名前プレート（大きめ）','優先案内']},
+ {key:'ビルダー', price:100000, kind:'Tシャツ', sku:'TENKUDOJO-AGENT-TEE-360b58d0', perks:['限定T（黒）','ビルダー記名（最大）','落成式に招待','一緒に建てる']},
+];
+const GOAL=3000000;
+const pdp = sku => `https://wearmu.com/shop/${sku}`;
+const mock = sku => `https://mockups.wearmu.com/catalog/mockups/${sku}.png`;
+const yen = n => n.toLocaleString();
+let cur=1;
+
+const tiersEl=document.getElementById('tiers');
+TIERS.forEach((t,i)=>{ const d=document.createElement('div'); d.className='tier'+(i===cur?' on':'');
+  d.innerHTML=`<div class="tn">${t.key}</div><div class="tp">¥${yen(t.price)}</div>`; d.onclick=()=>select(i); tiersEl.appendChild(d); });
+
+function select(i){
+  cur=i; const t=TIERS[i];
+  [...tiersEl.children].forEach((c,j)=>c.classList.toggle('on',j===i));
+  document.getElementById('heroImg').style.opacity=0;
+  const img=new Image(); img.onload=()=>{document.getElementById('heroImg').src=img.src;document.getElementById('heroImg').style.opacity=1;};
+  img.src=mock(t.sku);
+  document.getElementById('lTitle').textContent = t.key+'（'+t.kind+'）';
+  document.getElementById('lPrice').textContent = yen(t.price);
+  document.getElementById('lKind').textContent = t.kind;
+  const share=(t.price/GOAL*100);
+  const tiles=Math.max(1,Math.round(t.price/2000));
+  document.getElementById('shareBig').textContent = share.toFixed(2)+'%';
+  document.getElementById('tiles').textContent = tiles+'枚';
+  document.getElementById('shareSub').innerHTML = `¥${yen(t.price)} = 初期費用の <b>${share.toFixed(2)}%</b>。床 <b>${tiles}枚</b>に、あなたの名前が刻まれます。`;
+  document.getElementById('pfill').style.width = Math.min(100, t.price/GOAL*100*8).toFixed(1)+'%';
+  document.getElementById('goalPct').textContent = 'あなたの分 '+share.toFixed(2)+'%';
+  const pl=document.getElementById('perks'); pl.innerHTML=''; t.perks.forEach(p=>{const li=document.createElement('li');li.textContent=p;pl.appendChild(li);});
+  document.getElementById('cardTier').textContent=t.key;
+  document.getElementById('cardPrice').textContent=yen(t.price);
+  document.getElementById('cardShare').textContent=share.toFixed(2)+'%';
+  document.getElementById('buyPrice').textContent=yen(t.price);
+  document.getElementById('buyBtn').href=pdp(t.sku);
+  renderCardName();
+}
+function renderCardName(){
+  const n=document.getElementById('nameInput').value.trim();
+  document.getElementById('cardName').textContent = n || '— お名前 —';
+}
+document.getElementById('nameInput').addEventListener('input',renderCardName);
+
+// マイページ: localStorage で予約を保存
+const LS='tenku_founding_v1';
+function load(){ try{return JSON.parse(localStorage.getItem(LS)||'null');}catch(e){return null;} }
+function renderBoard(){
+  const me=load(); const board=document.getElementById('board');
+  const seed=['結','蔵','村','健','founder #1','founder #2'];
+  board.innerHTML='';
+  if(me){ const c=document.createElement('span'); c.className='chip you'; c.textContent='★ '+me.name+'（'+me.tier+'）'; board.appendChild(c); }
+  seed.forEach(s=>{const c=document.createElement('span');c.className='chip';c.textContent=s;board.appendChild(c);});
+}
+document.getElementById('saveBtn').onclick=()=>{
+  const n=document.getElementById('nameInput').value.trim();
+  if(!n){ document.getElementById('nameInput').focus(); document.getElementById('saved').textContent='先に、道場に刻む名前を入れてください。'; return; }
+  const t=TIERS[cur];
+  const rec={name:n,tier:t.key,price:t.price,sku:t.sku,date:new Date().toISOString().slice(0,10)};
+  localStorage.setItem(LS,JSON.stringify(rec));
+  document.getElementById('cardDate').textContent=rec.date;
+  document.getElementById('saved').innerHTML=`✓ 予約をマイページに保存しました。<b style="color:#fff">${n}</b> さんの ${t.key}（¥${yen(t.price)}）。あとは上の「支援する」で購入すると確定します。`;
+  renderBoard();
+};
+// restore
+(function(){ const me=load();
+  if(me){ const i=TIERS.findIndex(t=>t.sku===me.sku); if(i>=0)cur=i;
+    document.getElementById('nameInput').value=me.name; document.getElementById('cardDate').textContent=me.date; }
+  select(cur); renderBoard(); renderCardName();
+})();
+</script>
+</body>
+</html>
