@@ -60,6 +60,14 @@
     background:linear-gradient(90deg,#3a2,var(--gold),var(--fire)); transition:width .6s cubic-bezier(.2,.8,.2,1);
     box-shadow:0 0 14px rgba(255,150,40,.5);}
   #meterTxt{font-size:10px; color:var(--gold); font-weight:800; white-space:nowrap; width:84px; text-align:right;}
+  #voiceBtn{pointer-events:auto; cursor:pointer; border:1px solid var(--line); background:rgba(255,255,255,.06);
+    color:#fff; border-radius:99px; padding:5px 11px 5px 9px; font-size:12px; font-weight:700; display:flex; align-items:center; gap:5px;
+    backdrop-filter:blur(8px); transition:.2s; white-space:nowrap;}
+  #voiceBtn.speaking{border-color:var(--fire2); box-shadow:0 0 0 0 rgba(255,179,71,.5); animation:spk 1.3s ease-out infinite;}
+  #voiceBtn.off{opacity:.45;} #voiceBtn #voiceState{font-size:10px; color:var(--gold); letter-spacing:.04em;}
+  #voiceBtn.off #voiceState{color:var(--muted);}
+  @keyframes spk{0%{box-shadow:0 0 0 0 rgba(255,179,71,.45);}100%{box-shadow:0 0 0 9px rgba(255,179,71,0);}}
+  @media (max-width:560px){ #voiceBtn #voiceState{display:none;} #title small{display:none;} }
   /* ====== Nav ====== */
   #nav{position:fixed; bottom:0; left:0; right:0; z-index:30; display:flex; align-items:center;
     justify-content:center; gap:14px; padding:14px 16px calc(14px + env(safe-area-inset-bottom));
@@ -205,6 +213,7 @@
 
 <div id="hud" style="opacity:0; transition:opacity .6s">
   <div id="title">ロジックの、向こう側<small>動くピッチ紙芝居</small></div>
+  <button id="voiceBtn" title="本人の声 ON / OFF">🔊<span id="voiceState">本人の声</span></button>
   <div id="meterWrap">
     <span style="font-size:14px">🔥</span>
     <div id="meter"><div id="meterFill"></div></div>
@@ -268,6 +277,42 @@ const SCENES = [
     title:'世界に届くものを、仲間と。',
     body:'ロジックは世界を“説明”できる。動かすのは、いつだって<span class="em">確信</span>だ。<br>次に火をくべるのは、あなたかもしれない。', meter:100 },
 ];
+
+/* 本人(濱田優貴)クローン声ナレーション — Koe(mcp.koe.live)生成 */
+const NARR = [
+  'https://mcp.koe.live/audio/v9qiM4d9WaACG4TfXc8J6B.mp3',
+  'https://mcp.koe.live/audio/dwze2tv1TriD9cWMQU1mpT.mp3',
+  'https://mcp.koe.live/audio/Kcb0OYXzI4Bk2WytHClwjz.mp3',
+  'https://mcp.koe.live/audio/7ke25AwzQ51PMQ05TUA3IG.mp3',
+  'https://mcp.koe.live/audio/uSblQ23Hz3XIB00glxoEnd.mp3',
+  'https://mcp.koe.live/audio/bponu4OARxVLci47XKcJ3j.mp3',
+  'https://mcp.koe.live/audio/v7n6Ic3sTLRQcglFuDU2Gj.mp3',
+  'https://mcp.koe.live/audio/ymhvvZvV3ZyUGzx80MdIrc.mp3',
+  'https://mcp.koe.live/audio/FbIEtKk7UJwvnCN1IFmvtu.mp3',
+  'https://mcp.koe.live/audio/mvlosjVQRM95nsTI8nzlBl.mp3',
+];
+const narrator = new Audio(); narrator.preload='auto';
+let voiceOn = true;
+const voiceBtn = document.getElementById('voiceBtn'), voiceState = document.getElementById('voiceState');
+narrator.addEventListener('playing',()=>voiceBtn.classList.add('speaking'));
+narrator.addEventListener('pause',()=>voiceBtn.classList.remove('speaking'));
+narrator.addEventListener('ended',()=>voiceBtn.classList.remove('speaking'));
+function playNarr(n){
+  narrator.pause(); voiceBtn.classList.remove('speaking');
+  if(!voiceOn || !NARR[n]) return;
+  narrator.src = NARR[n]; narrator.currentTime = 0;
+  narrator.play().catch(()=>{}); // ブラウザがブロックしたら静かに無視
+}
+voiceBtn.onclick = ()=>{
+  voiceOn = !voiceOn;
+  voiceBtn.classList.toggle('off',!voiceOn);
+  voiceState.textContent = voiceOn ? '本人の声' : 'ミュート';
+  voiceBtn.firstChild.textContent = voiceOn ? '🔊' : '🔇';
+  if(voiceOn) playNarr(idx); else narrator.pause();
+};
+/* 次の声をプリロードして“間”をなくす */
+const pre = new Audio();
+function preloadNext(n){ if(NARR[n+1]){ pre.src=NARR[n+1]; } }
 
 const stage = document.getElementById('stage');
 let idx = 0, built = false;
@@ -448,6 +493,7 @@ stage.addEventListener('touchend',e=>{
 /* ---------- per-scene activations ---------- */
 let muStarted=false, bimStarted=false;
 function onEnter(n){
+  playNarr(n); preloadNext(n);
   const t=SCENES[n].type;
   if(t==='bim' && !bimStarted){ bimStarted=true; initBim(); }
   if(t==='mu' && !muStarted){ muStarted=true; initMU(); }
@@ -666,7 +712,7 @@ function start(){
 }
 document.getElementById('startBtn').onclick=start;
 document.getElementById('skipIntro').onclick=start;
-setTimeout(()=>document.getElementById('skipIntro').style.display='block',1200);
+setTimeout(()=>{ if(!built) document.getElementById('skipIntro').style.display='block'; },1200);
 
 /* replay + share (delegated) */
 document.addEventListener('click',e=>{
