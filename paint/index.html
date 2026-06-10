@@ -55,8 +55,8 @@
   <div class="top"><span style="font-size:18px">🔒</span><b>ローカルで、つくる</b><a href="../make/">/make へ</a></div>
   <div class="kick">作るを、空気に</div>
   <h1>あなたの端末だけで、<br>画像をつくる。</h1>
-  <div class="badge">🧪 端末内（WebGPU・実験）・ 無料 ・ 通信なし</div>
-  <p class="lead"><b>端末内（WebGPU）生成は実験中</b>です。クラウドAPIを使わず<b>あなたのGPUだけ</b>で動けば完全無料ですが、現状ブラウザ側の制約で<b>失敗することがあります</b>。<b>自前GPU(m5/FLUX)で完全無料の安定版を準備中</b>。</p>
+  <div class="badge">🎨 完全無料 ・ 自前GPU(m5/SDXL) ・ 何枚でも</div>
+  <p class="lead">クラウドの有料APIを使いません。<b>自前のGPU（m5）</b>で生成するので、<b>何枚作っても完全無料</b>。スマホからでもOK（WebGPU不要）。10〜30秒で出ます。</p>
 
   <div class="panel">
     <textarea id="prompt" placeholder="例：a minimal line-art emblem of a snow mountain and a jiu-jitsu belt, gold on black"></textarea>
@@ -64,7 +64,7 @@
       <span>ステップ <b id="stepsv" style="color:#fff">20</b></span>
       <input type="range" id="steps" min="1" max="30" value="20">
     </div>
-    <button class="btn" id="gen">🔒 ローカルで生成（無料）</button>
+    <button class="btn" id="gen">🎨 生成する（無料）</button>
     <div class="status" id="status">WebGPU を確認中…</div>
     <div class="pbar" id="pbar"><div class="pfill" id="pfill"></div></div>
     <div class="stage"><canvas id="cv" width="512" height="512"></canvas></div>
@@ -72,7 +72,7 @@
     <div class="gate" id="gate"></div>
   </div>
 
-  <p class="note">※ WebGPU 対応ブラウザが必要です（PC の Chrome / Edge）。初回はモデル（数 GB）をダウンロードするため時間がかかります。生成速度は端末の GPU に依存します。モデル: <code>aislamov/stable-diffusion-2-1-base-onnx</code>（diffusers.js / onnxruntime-web）。<br>WebGPU が無い端末は、クラウドの <a href="https://wearmu.com/make" target="_blank" style="color:var(--gold)">MU /make</a> をどうぞ。</p>
+  <p class="note">※ 生成は<b>自前GPU（m5）</b>で動きます（モデル: SDXL / Juggernaut-XL）。無料ですが共有GPUのため<b>1人あたり40枚/時・混雑時は順番待ち</b>のレート制限があります。m5 がスリープ/停止中は出ないことがあります（少し待って再試行）。</p>
   <div class="foot"><a href="../">『ロジックの、向こう側』へ</a> ・ 世界に届くものを、仲間と。🔥</div>
 </div>
 
@@ -87,60 +87,43 @@ const stepsEl=document.getElementById('steps'); stepsEl.oninput=()=>document.get
 function setStatus(t){ statusEl.innerHTML=t; }
 function prog(p){ pbar.style.display='block'; pfill.style.width=Math.round(p*100)+'%'; }
 
-const hasGPU = !!navigator.gpu;
-if(!hasGPU){
-  genBtn.disabled=true;
-  setStatus('この端末では WebGPU が使えません。');
-  const g=document.getElementById('gate'); g.style.display='block';
-  g.innerHTML='🔒 ローカル生成には <b>WebGPU</b> が必要です。PC の <b>Chrome / Edge</b> で開くか、クラウドの <a href="https://wearmu.com/make?prompt='+encodeURIComponent(pre||'')+'" target="_blank">MU /make</a> をお使いください。';
-  if(window.track) window.track('paint:no_webgpu');
-} else {
-  setStatus('準備OK。言葉を入れて「ローカルで生成」を押してください（初回はモデルDLで数分）。');
-  if(window.track) window.track('paint:ready');
+const ENDPOINT='https://m5-paint.chatweb.ai/gen';
+setStatus('準備OK。言葉を入れて「生成」を押してください（自前GPUで10〜30秒）。');
+if(window.track) window.track('paint:ready');
+
+async function genOnce(prompt, steps){
+  const u=ENDPOINT+'?prompt='+encodeURIComponent(prompt)+'&w=768&h=768&steps='+steps;
+  const res=await fetch(u,{cache:'no-store'});
+  if(res.status===429){ const j=await res.json().catch(()=>({})); const e=new Error(j.error||'busy'); e.busy=true; throw e; }
+  if(!res.ok){ const j=await res.json().catch(()=>({})); throw new Error(j.error||('HTTP '+res.status)); }
+  return await res.blob();
 }
 
-let pipe=null;
 genBtn.addEventListener('click', async ()=>{
   const prompt=promptEl.value.trim();
   if(!prompt){ promptEl.focus(); return; }
-  if(!hasGPU) return;
   genBtn.disabled=true; dlbox.style.display='none'; cv.style.display='none';
   if(window.track) window.track('paint:generate');
-  // 既知の制約: 端末内SD(diffusers.js)はWeb Worker内で依存(buffer/long)を解決できず失敗しがち。
-  // 無限ローディングや謎エラーで止まらないよう、ウォッチドッグで正直に切り上げる。
-  let produced=false;
-  const watchdog=setTimeout(()=>{ if(!produced){
-    setStatus('🧪 端末内生成（実験）が時間内に終わりませんでした。<br><span style="color:var(--muted)">ブラウザ内SDはまだ不安定です。<b>自前GPU(m5/FLUX)で完全無料の安定版を準備中</b>。WebGPU対応PCなら数分待つと出ることもあります。</span>');
-    genBtn.disabled=false;
-  } }, 80000);
+  const steps=parseInt(stepsEl.value)||22;
+  setStatus('🎨 自前GPU(m5/SDXL)で生成中…（10〜30秒）'); prog(0.18);
+  const tick=setInterval(()=>{ const w=parseFloat(pfill.style.width)||18; if(w<90) prog((w+5)/100); },1400);
   try{
-    if(!pipe){
-      setStatus('🧪 実験: ブラウザ内エンジンを読み込み中…（初回のみモデルDL・数GB／失敗することがあります）');
-      const mod = await import('https://esm.sh/@aislamov/diffusers.js@latest');
-      const DiffusionPipeline = mod.DiffusionPipeline || (mod.default && mod.default.DiffusionPipeline);
-      if(!DiffusionPipeline) throw new Error('diffusers.js の読み込みに失敗しました');
-      pipe = await DiffusionPipeline.fromPretrained('aislamov/stable-diffusion-2-1-base-onnx', {
-        revision: 'main',
-        progressCallback: (info)=>{ if(info && info.progress!=null){ prog(info.progress); setStatus('モデル読込 <span class="pct">'+Math.round(info.progress*100)+'%</span> '+(info.file||'')); } }
-      });
+    let blob;
+    for(let attempt=0; attempt<3; attempt++){
+      try{ blob=await genOnce(prompt, steps); break; }
+      catch(e){ if(e.busy && attempt<2){ setStatus('⏳ 混んでいます。順番待ち…（'+(attempt+1)+'/3）'); await new Promise(r=>setTimeout(r,6000)); continue; } throw e; }
     }
-    const steps=parseInt(stepsEl.value)||20;
-    setStatus('🎨 生成中…（端末のGPUで計算しています）');
-    const images = await pipe.run({
-      prompt, numInferenceSteps: steps,
-      progressCallback: (info)=>{ if(info && info.step!=null && info.totalSteps){ prog(info.step/info.totalSteps); setStatus('生成 <span class="pct">'+info.step+'/'+info.totalSteps+'</span> ステップ'); } }
-    });
-    const img = images[0];
-    const data = await img.toImageData ? await img.toImageData({tensorLayout:'NCWH', format:'RGB'}) : null;
-    if(data){ cv.width=data.width; cv.height=data.height; cv.getContext('2d').putImageData(data,0,0); }
-    produced=true; clearTimeout(watchdog);
-    cv.style.display='block'; prog(1); setStatus('✅ できあがり（端末内で生成＝完全ローカル・無料）');
+    clearInterval(tick);
+    const url=URL.createObjectURL(blob);
+    const im=new Image(); await new Promise((ok,ng)=>{ im.onload=ok; im.onerror=ng; im.src=url; });
+    cv.width=im.naturalWidth; cv.height=im.naturalHeight; cv.getContext('2d').drawImage(im,0,0);
+    cv.style.display='block'; prog(1); setStatus('✅ できあがり（自前GPU・完全無料）');
     dl.href=cv.toDataURL('image/png'); dlbox.style.display='block';
     if(window.track) window.track('paint:done');
   }catch(e){
-    produced=true; clearTimeout(watchdog);
-    setStatus('🧪 端末内生成（実験）は失敗しました。<br><span style="color:var(--muted)">原因: ブラウザのWeb Worker制約でSDライブラリが不安定（既知）。<b>自前GPU(m5/FLUX)で完全無料の安定版を準備中</b>です。</span>');
-    if(window.track) window.track('paint:error:'+((e&&e.message)||e).toString().slice(0,40));
+    clearInterval(tick); prog(0);
+    setStatus('⚠ 生成できませんでした：'+((e&&e.message)||e)+'<br><span style="color:var(--muted)">自前GPU(m5)が混雑/停止中かも。少し待って再試行してください。</span>');
+    if(window.track) window.track('paint:error');
   }finally{ genBtn.disabled=false; }
 });
 </script>
