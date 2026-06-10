@@ -8,6 +8,27 @@
 <meta property="og:title" content="熊牛・天空の道場 — ファウンディング">
 <meta property="og:description" content="買うことが、つくることの始まりになる。">
 <meta property="og:image" content="https://mockups.wearmu.com/catalog/mockups/TENKUDOJO-AGENT-TEE-2ddf4be0.png">
+<script defer src="https://enabler-analytics.fly.dev/t.js"></script>
+<script>
+(function(){
+  var SITE='kamishibai-pitch', EP='https://enabler-analytics.fly.dev/api/event';
+  function ref(){ try{ var r=localStorage.getItem('kp_ref'); if(!r){ r='v'+Math.random().toString(36).slice(2,8); localStorage.setItem('kp_ref',r);} return r; }catch(e){ return 'v0'; } }
+  window.kpRef=ref;
+  window.track=function(label,kind){ try{
+    var body=JSON.stringify({s:SITE,p:location.pathname,k:kind||'click',v:1,l:String(label).slice(0,80)});
+    if(navigator.sendBeacon){ navigator.sendBeacon(EP,new Blob([body],{type:'application/json'})); }
+    else { fetch(EP,{method:'POST',headers:{'Content-Type':'application/json'},body:body,keepalive:true}).catch(function(){}); }
+  }catch(e){} };
+  var from=new URLSearchParams(location.search).get('ref');
+  if(from){ window.track('ref:'+from); try{localStorage.setItem('kp_from',from);}catch(e){} }
+  window.track('founding:enter');
+  var t0=Date.now(),sent=false;
+  function dwell(){ if(sent)return; sent=true; var s=Math.round((Date.now()-t0)/1000);
+    window.track((s<10?'0-10':s<30?'10-30':s<60?'30-60':s<180?'60-180':'180+'),'dwell'); }
+  document.addEventListener('visibilitychange',function(){ if(document.hidden) dwell(); });
+  window.addEventListener('pagehide',dwell);
+})();
+</script>
 <style>
   :root{--ink:#0b0d16;--ink2:#11152a;--gold:#e9c46a;--fire:#ff7a18;--fire2:#ffb347;--line:rgba(255,255,255,.12);--muted:#9aa0b4;}
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
@@ -126,6 +147,7 @@
     <div class="btns">
       <a class="btn buy" id="buyBtn" href="#" target="_blank" rel="noopener">🛒 この内容で支援する（¥<span id="buyPrice">9,800</span>）→</a>
       <button class="btn ghost" id="saveBtn">★ マイページに予約として保存</button>
+      <button class="btn ghost" id="shareBtn">🔗 広める（あなたのリンクをコピー）</button>
     </div>
     <div class="note" id="saved"></div>
     <div class="board" id="board"></div>
@@ -175,7 +197,17 @@ function select(i){
   document.getElementById('buyPrice').textContent=yen(t.price);
   document.getElementById('buyBtn').href=pdp(t.sku);
   renderCardName();
+  if(window.track) window.track('tier:'+t.key);
 }
+document.getElementById('buyBtn').addEventListener('click',()=>{ if(window.track) window.track('buy:'+TIERS[cur].key); });
+document.getElementById('shareBtn').onclick=()=>{
+  const nm=document.getElementById('nameInput').value.trim();
+  const code = nm ? encodeURIComponent(nm.slice(0,16)) : (window.kpRef?window.kpRef():'');
+  const u = location.origin+location.pathname.replace(/founding\.html$/,'')+'founding.html'+(code?('?ref='+code):'');
+  if(window.track) window.track('share:'+(nm?'named':'anon'));
+  if(navigator.share) navigator.share({title:'熊牛・天空の道場 — ファウンディング',text:'買うことが、つくることの始まりに。',url:u}).catch(()=>{});
+  else { navigator.clipboard?.writeText(u); const b=document.getElementById('shareBtn'); b.textContent='✓ リンクをコピー（広めて！）'; setTimeout(()=>b.textContent='🔗 広める（あなたのリンクをコピー）',2000); }
+};
 function renderCardName(){
   const n=document.getElementById('nameInput').value.trim();
   document.getElementById('cardName').textContent = n || '— お名前 —';
@@ -198,6 +230,7 @@ document.getElementById('saveBtn').onclick=()=>{
   const t=TIERS[cur];
   const rec={name:n,tier:t.key,price:t.price,sku:t.sku,date:new Date().toISOString().slice(0,10)};
   localStorage.setItem(LS,JSON.stringify(rec));
+  if(window.track) window.track('pledge:'+t.key);
   document.getElementById('cardDate').textContent=rec.date;
   document.getElementById('saved').innerHTML=`✓ 予約をマイページに保存しました。<b style="color:#fff">${n}</b> さんの ${t.key}（¥${yen(t.price)}）。あとは上の「支援する」で購入すると確定します。`;
   renderBoard();

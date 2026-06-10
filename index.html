@@ -8,6 +8,28 @@
 <meta property="og:title" content="ロジックの、向こう側">
 <meta property="og:description" content="紙芝居をめくると、プロダクトが生きて動く。触れる投資ピッチ。">
 <meta property="og:type" content="website">
+<!-- enabler-analytics: 誰が・いつ・どれだけ見たか / 誰が広めたか -->
+<script defer src="https://enabler-analytics.fly.dev/t.js"></script>
+<script>
+(function(){
+  var SITE='kamishibai-pitch', EP='https://enabler-analytics.fly.dev/api/event';
+  function ref(){ try{ var r=localStorage.getItem('kp_ref'); if(!r){ r='v'+Math.random().toString(36).slice(2,8); localStorage.setItem('kp_ref',r);} return r; }catch(e){ return 'v0'; } }
+  window.kpRef=ref;
+  window.track=function(label,kind){ try{
+    var body=JSON.stringify({s:SITE,p:location.pathname,k:kind||'click',v:1,l:String(label).slice(0,80)});
+    if(navigator.sendBeacon){ navigator.sendBeacon(EP, new Blob([body],{type:'application/json'})); }
+    else { fetch(EP,{method:'POST',headers:{'Content-Type':'application/json'},body:body,keepalive:true}).catch(function(){}); }
+  }catch(e){} };
+  var from=new URLSearchParams(location.search).get('ref');
+  if(from){ window.track('ref:'+from); try{localStorage.setItem('kp_from',from);}catch(e){} }
+  window.track('enter');
+  var t0=Date.now(), sent=false;
+  function dwell(){ if(sent)return; sent=true; var s=Math.round((Date.now()-t0)/1000);
+    window.track((s<10?'0-10':s<30?'10-30':s<60?'30-60':s<180?'60-180':'180+'),'dwell'); }
+  document.addEventListener('visibilitychange',function(){ if(document.hidden) dwell(); });
+  window.addEventListener('pagehide',dwell);
+})();
+</script>
 <style>
   :root{
     --ink:#1a1410; --paper:#f4 ece0; --paper:#f5eee1; --fire:#ff7a18; --fire2:#ffb347;
@@ -186,6 +208,8 @@
   .prow{display:flex; justify-content:space-between; font-size:13px; padding:5px 0; border-bottom:1px dotted #cbb;}
   .prow b{font-variant-numeric:tabular-nums;}
   .prow.big b{color:#b3530a; font-size:17px;}
+  .redact{background:#2a2418; color:#2a2418; border-radius:3px; padding:0 6px; letter-spacing:2px; user-select:none;}
+  .prow.big .redact{color:#b3530a; background:#b3530a;}
   .sign{margin-top:14px; height:46px; position:relative;}
   .sign svg{position:absolute; right:0; bottom:0;}
   .sign-path{stroke:#1a1a2a; stroke-width:2.4; fill:none; stroke-linecap:round; stroke-dasharray:520; stroke-dashoffset:520;}
@@ -283,8 +307,8 @@ const SCENES = [
     body:'Amazonの後、誰もが買い手に。メルカリの後、誰もが売り手に。<br>―― なら、その次は。<span class="em">誰もが、作り手になる。</span>', meter:84 },
 
   { type:'contract', kicker:'だから、計算をやめた',
-    title:'pre 100億に、10億円。',
-    body:'数字は、まだ無い。あるのは確信だけ。「買う」「売る」が空気になったように、<span class="em">「作る」も空気になる。</span>そこに、賭ける。', meter:92 },
+    title:'数字じゃなく、確信で。',
+    body:'金額は、ここには書かない。あるのは確信だけ。「買う」「売る」が空気になったように、<span class="em">「作る」も空気になる。</span>そこに、賭ける。', meter:92 },
 
   { type:'art', emoji:'🥋', kicker:'その十億で、まず何を作る?',
     title:'北海道・熊牛に、道場を建てる。',
@@ -490,8 +514,8 @@ function buildScene(s,i){
         <div class="paper">
           <h3>出 資 契 約 書</h3>
           <div class="prow"><span>対象</span><b>Enabler Inc.</b></div>
-          <div class="prow"><span>評価額（pre）</span><b id="cval">¥0</b></div>
-          <div class="prow big"><span>出資額</span><b id="cinv">¥0</b></div>
+          <div class="prow"><span>評価額（pre）</span><b id="cval" class="redact">██████</b></div>
+          <div class="prow big"><span>出資額</span><b id="cinv" class="redact">████</b></div>
           <div class="prow"><span>根拠</span><b>「作る」が空気になる</b></div>
           <div class="sign">
             <svg width="150" height="46" viewBox="0 0 150 46"><path class="sign-path" id="signPath" d="M6,34 C18,8 26,40 38,20 C46,8 52,38 64,22 C74,10 84,40 96,18 C108,6 118,34 144,14"/></svg>
@@ -561,7 +585,9 @@ stage.addEventListener('touchend',e=>{
 let muStarted=false, bimStarted=false;
 function onEnter(n){
   playNarr(n); preloadNext(n);
+  if(window.track) window.track('scene:'+n);
   const t=SCENES[n].type;
+  if(t==='finale' && window.track) window.track('reached:finale');
   if(t==='bim' && !bimStarted){ bimStarted=true; initBim(); }
   if(t==='mu' && !muStarted){ muStarted=true; initMU(); }
   if(t==='goods'){ const bar=document.getElementById('goodsBar'); if(bar) setTimeout(()=>bar.style.width='38%',300); setTimeout(()=>sfxChime(587),250); }
@@ -756,13 +782,9 @@ let contractRun=false;
 function runContract(){
   if(contractRun) return; contractRun=true;
   const cval=document.getElementById('cval'), cinv=document.getElementById('cinv');
-  function countTo(el,target,prefix,dur){
-    const t0=performance.now();
-    function step(t){ const k=Math.min(1,(t-t0)/dur); const e=1-Math.pow(1-k,3);
-      el.textContent=prefix+Math.round(target*e).toLocaleString(); if(k<1)requestAnimationFrame(step);} requestAnimationFrame(step);
-  }
-  setTimeout(()=>countTo(cval,10000000000,'¥',1400),400);
-  setTimeout(()=>countTo(cinv,1000000000,'¥',1400),1100);
+  // 金額は非公開 — 伏せ字をふっと浮かせるだけ（数字は出さない）
+  [cval,cinv].forEach((el,i)=>{ if(!el)return; el.style.opacity=0;
+    setTimeout(()=>{ el.style.transition='opacity .6s'; el.style.opacity=1; }, 500+i*500); });
   const path=document.getElementById('signPath');
   setTimeout(()=>{ path.style.transition='stroke-dashoffset 1.3s ease'; path.style.strokeDashoffset='0'; sfxChime(523); },2200);
   setTimeout(()=>{ document.getElementById('stamp').classList.add('on'); sfxThud(); },3500);
@@ -787,10 +809,13 @@ setTimeout(()=>{ if(!built) document.getElementById('skipIntro').style.display='
 /* replay + share (delegated) */
 document.addEventListener('click',e=>{
   if(e.target.id==='replayBtn'){ go(0); }
+  if(e.target.id==='goodsBuy' && window.track){ window.track('goods:open'); }
   if(e.target.id==='shareBtn'){
-    const u=location.href;
-    if(navigator.share) navigator.share({title:'ロジックの、向こう側',url:u}).catch(()=>{});
-    else { navigator.clipboard?.writeText(u); e.target.textContent='✓ コピーした'; }
+    const code = window.kpRef ? window.kpRef() : '';
+    const u = location.origin+location.pathname+(code?('?ref='+code):'');
+    if(window.track) window.track('share:'+(navigator.share?'native':'copy'));
+    if(navigator.share) navigator.share({title:'「作る」を、空気にする。',text:'語りをめくると、本物が動き出す。',url:u}).catch(()=>{});
+    else { navigator.clipboard?.writeText(u); e.target.textContent='✓ リンクをコピー（広めて！）'; }
   }
 });
 </script>
