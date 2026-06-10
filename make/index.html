@@ -120,7 +120,8 @@ function card(key,primary){
   if(key!=='fund'){ a.target='_blank'; a.rel='noopener'; }
   a.innerHTML=`<span class="e">${r.e}</span><div class="t"><b>${r.title}${primary?'<span class="badge">おすすめ</span>':''}</b><span>${r.sub}</span></div><span class="go">${r.go}</span>`;
   a.addEventListener('click',(ev)=>{
-    if(window.track) window.track('make:'+key+(USER?(':'+USER):''));
+    if(window.track){ window.track('make:'+key+(USER?(':'+USER):''));
+      window.track('makego:'+key+'|'+(USER||'-')+'|'+(PROMPT||'').slice(0,50)); }
     if(key==='bim' && PROMPT){
       // bim.houseはURLでpromptを受けないので、言葉をコピーして渡す
       try{ navigator.clipboard && navigator.clipboard.writeText(PROMPT); toast('「'+PROMPT+'」をコピー。箱に貼って「建てる」を押すと家が建ちます'); }catch(e){}
@@ -141,10 +142,12 @@ function render(){
     el.innerHTML='<span style="color:var(--muted);font-weight:600">（言葉を入れてください）</span>';
     document.getElementById('emptyBox').style.display='block';
   }
-  // analytics: 誰が何を作りに来たか
-  if(window.track){ window.track('make:open'+(USER?(':'+USER):'')); if(PROMPT) window.track('make_prompt:'+PROMPT.slice(0,40)); }
-
   const c=classify(PROMPT);
+  // 要望ログ: 誰が(USER)・何を(PROMPT)・どこへ(route=bim/mu/paint/fund) を残す
+  if(window.track){
+    window.track('make:open'+(USER?(':'+USER):''));
+    if(PROMPT) window.track('makereq:'+(c||'na')+'|'+(USER||'-')+'|'+PROMPT.slice(0,55));
+  }
   const all=['bim','mu','paint','fund'];
   const order = c ? [c, ...all.filter(k=>k!==c)] : all;
   const cards=document.getElementById('cards'); cards.innerHTML='';
