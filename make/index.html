@@ -93,8 +93,8 @@ const USER=(qs.get('user')||qs.get('u')||'').trim();
 const enc=encodeURIComponent;
 
 const ROUTES={
-  bim:{e:'🏠',title:'bim.houseで建てる',sub:'言葉が、3秒で家になる。法規もその場で。',go:'建てる →',
-       url:'https://bim.house', kind:'house'},
+  bim:{e:'🏠',title:'bim.houseで建てる',sub:'ブラウザ内AI(WebLLM)で設計・通信なし。法規もその場で。',go:'建てる →',
+       url:'https://bim.house/design/local?prompt='+enc(PROMPT||'')+'&go=1', kind:'house'},
   mu:{e:'👕',title:'MUでつくる',sub:'言うだけ10秒・1枚から・在庫ゼロ。',go:'つくる →',
        url:'https://wearmu.com/make?prompt='+enc(PROMPT||''), kind:'merch'},
   fund:{e:'🥋',title:'熊牛・天空の道場を支える',sub:'買うことが、つくることの始まりに。',go:'支援する →',
