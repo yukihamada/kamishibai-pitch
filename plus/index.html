@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ピッチを、もっと刺さるものに — 健太郎へ</title>
+<meta name="description" content="動くピッチ紙芝居『ロジックの、向こう側』を、投資家により刺さるものにする次の5手。">
+<meta name="robots" content="noindex">
+<meta property="og:title" content="ピッチを、もっと刺さるものに — 次の5手">
+<script defer src="https://enabler-analytics.fly.dev/t.js"></script>
+<script>
+(function(){var SITE='kamishibai-pitch',EP='https://enabler-analytics.fly.dev/api/event';
+ window.track=function(l,k){try{var b=JSON.stringify({s:SITE,p:location.pathname,k:k||'click',v:1,l:String(l).slice(0,80)});
+ navigator.sendBeacon?navigator.sendBeacon(EP,new Blob([b],{type:'application/json'})):fetch(EP,{method:'POST',headers:{'Content-Type':'application/json'},body:b,keepalive:true}).catch(function(){});}catch(e){}};})();
+</script>
+<style>
+  :root{--ink:#0b0d16;--gold:#e9c46a;--fire:#ff7a18;--fire2:#ffb347;--line:rgba(255,255,255,.14);--muted:#9aa0b4;}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;}
+  html,body{height:100%;}
+  body{font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",system-ui,sans-serif;background:#06070d;color:#fff;
+    overflow:hidden;-webkit-font-smoothing:antialiased;}
+  #deck{position:fixed;inset:0;}
+  .slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:7vmin 9vmin;text-align:center;opacity:0;transform:translateY(18px) scale(.99);pointer-events:none;
+    transition:opacity .5s ease,transform .5s cubic-bezier(.2,.8,.2,1);
+    background:radial-gradient(80% 70% at 50% 0%,#15182b,#06070d 70%);}
+  .slide.on{opacity:1;transform:none;pointer-events:auto;}
+  .kick{font-size:clamp(11px,1.6vmin,15px);letter-spacing:.34em;color:var(--gold);text-transform:uppercase;margin-bottom:3vmin;}
+  h1{font-size:clamp(30px,8vmin,82px);font-weight:900;line-height:1.18;letter-spacing:.01em;}
+  h2{font-size:clamp(24px,5.4vmin,52px);font-weight:900;line-height:1.25;}
+  .num{font-size:clamp(40px,11vmin,120px);font-weight:900;color:var(--fire2);line-height:1;margin-bottom:2vmin;}
+  .sub{font-size:clamp(15px,2.6vmin,26px);color:#d7dae6;line-height:1.7;margin-top:3.5vmin;max-width:26em;}
+  .sub .em{color:var(--fire2);font-weight:700;}
+  .why{font-size:clamp(13px,2.1vmin,20px);color:var(--muted);line-height:1.7;margin-top:2.5vmin;max-width:26em;}
+  .row{display:flex;gap:2.4vmin;flex-wrap:wrap;justify-content:center;margin-top:4vmin;}
+  .pill{font-size:clamp(12px,2vmin,20px);color:#e6e9f2;border:1px solid var(--line);border-radius:99px;padding:1.1vmin 2.6vmin;background:rgba(255,255,255,.04);}
+  .pill b{color:var(--fire2);}
+  .em{color:var(--fire2);}
+  .nav{position:fixed;bottom:3vmin;left:0;right:0;display:flex;gap:3vmin;justify-content:center;align-items:center;z-index:5;}
+  .nav button{background:rgba(255,255,255,.06);border:1px solid var(--line);color:#fff;border-radius:99px;
+    width:44px;height:44px;font-size:20px;cursor:pointer;}
+  .dots{display:flex;gap:1vmin;}
+  .dot{width:8px;height:8px;border-radius:99px;background:rgba(255,255,255,.22);}
+  .dot.on{background:var(--fire2);}
+  .foot{position:fixed;top:3vmin;right:4vmin;font-size:12px;color:var(--muted);letter-spacing:.1em;z-index:5;}
+</style>
+</head>
+<body>
+<div class="foot">ENABLER · 内部メモ（次の一手）</div>
+<div id="deck">
+
+  <section class="slide">
+    <div class="kick">健太郎へ — 相談</div>
+    <h1>ピッチを、<span class="em">もっと刺さる</span>ものに。</h1>
+    <div class="sub">『ロジックの、向こう側』は“触れる実機”が強い。<br>あと <span class="em">5手</span>で、投資家が「確信」に変わる。一緒に決めたい。</div>
+  </section>
+
+  <section class="slide">
+    <div class="num">1</div>
+    <h2>数字を、<span class="em">実数ライブ</span>に。</h2>
+    <div class="sub">MU実売上・bim公開物件・JiuFlow実記録を <span class="em">/transparency 連動でライブ表示</span>。</div>
+    <div class="why">なぜ：このブランドの背骨は「数字じゃなく確信で」＝<span class="em">本物が触れること</span>。数字も“本物”で貫けば、突かれても崩れない。小さくても実数 ＞ 大きい見栄え。</div>
+  </section>
+
+  <section class="slide">
+    <div class="num">2</div>
+    <h2>最後に、<span class="em">次の一歩</span>を。</h2>
+    <div class="sub">finale「次に作るのはあなただ」の先に、明確なCTAを1つ。</div>
+    <div class="row">
+      <span class="pill">このまま <b>15分話す</b></span>
+      <span class="pill"><b>データルーム</b>を開く</span>
+      <span class="pill">実機に<b>フルアクセス</b></span>
+    </div>
+    <div class="why">なぜ：金額は伏せたままでいい。でも“お願い”が無いと投資ピッチは閉じない。</div>
+  </section>
+
+  <section class="slide">
+    <div class="num">3</div>
+    <h2><span class="em">なぜ今・なぜ僕ら</span>の一枚。</h2>
+    <div class="sub">WHY NOW＝“作る”のコストがAIで<span class="em">今まさに崩れた</span>変曲点。<br>WHY US＝この速度で作れる証拠（このピッチ自体に今日も新機能を出荷した事実）。</div>
+    <div class="why">なぜ：vision(何を)とdemo(どう)はある。投資判断の核は「なぜ今」「なぜ君」。</div>
+  </section>
+
+  <section class="slide">
+    <div class="num">4</div>
+    <h2>その投資家<span class="em">専用</span>の実機。</h2>
+    <div class="sub"><span class="em">?investor=名前/出身地</span> で、bimがその人の地元に家を建て、契約シーンに名前が出る。</div>
+    <div class="why">なぜ：触れる実機がもう動く。ここまでやると忘れられない＆刺さる（既存の強みの延長で一撃）。</div>
+  </section>
+
+  <section class="slide">
+    <div class="num">5</div>
+    <h2>最硬の反論に、<span class="em">先に</span>答える。</h2>
+    <div class="sub">「なぜGoogle/OpenAIがやらない？」「堀は？」を<span class="em">一枚で先回り</span>。</div>
+    <div class="why">なぜ：投資家はリスクを探す。隠すより先に答える方が信頼を生む。</div>
+  </section>
+
+  <section class="slide">
+    <div class="kick">優先順</div>
+    <h1>まず <span class="em">①実数ライブ</span>。<br>次に <span class="em">②クロージング</span>。</h1>
+    <div class="sub">①は“盛りを消す”こと自体が背骨と一致。<br><span class="em">どれから着手するか、健太郎の意見が欲しい。</span></div>
+    <div class="row"><span class="pill">本体: <b>yukihamada.github.io/kamishibai-pitch/</b></span></div>
+  </section>
+
+</div>
+
+<div class="nav">
+  <button id="prev" aria-label="前へ">‹</button>
+  <div class="dots" id="dots"></div>
+  <button id="next" aria-label="次へ">›</button>
+</div>
+
+<script>
+  var slides=[].slice.call(document.querySelectorAll('.slide'));
+  var dots=document.getElementById('dots');
+  slides.forEach(function(_,i){var d=document.createElement('span');d.className='dot';d.onclick=function(){go(i)};dots.appendChild(d);});
+  var i=0;
+  function go(n){ i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach(function(s,k){s.classList.toggle('on',k===i);});
+    [].slice.call(dots.children).forEach(function(d,k){d.classList.toggle('on',k===i);});
+    if(window.track)track('plus:slide:'+(i+1));
+  }
+  document.getElementById('next').onclick=function(){go(i+1)};
+  document.getElementById('prev').onclick=function(){go(i-1)};
+  document.addEventListener('keydown',function(e){if(e.key==='ArrowRight'||e.key===' ')go(i+1);if(e.key==='ArrowLeft')go(i-1);});
+  var sx=null;
+  document.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;},{passive:true});
+  document.addEventListener('touchend',function(e){if(sx===null)return;var dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)go(i+(dx<0?1:-1));sx=null;},{passive:true});
+  // 画面の任意タップでも進む(ナビ以外)
+  document.getElementById('deck').addEventListener('click',function(){go(i+1)});
+  go(0);
+</script>
+</body>
+</html>
